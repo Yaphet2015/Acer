@@ -7,11 +7,11 @@ export function Overview({ summary }: { summary: Summary }) {
     <div className="space-y-5 px-4 py-4">
       <section>
         <h3 className="mb-2 flex items-center gap-1.5 text-[15px] font-semibold text-zinc-900">
-          <Sparkle className="h-4 w-4 text-violet-500" /> 概览
+          <Sparkle className="h-4 w-4 text-accent" /> 概览
         </h3>
         <p className="text-[13.5px] leading-[1.7] text-zinc-700">
           {highlightTerms(summary.overview, summary.keyTerms).map((s, i) =>
-            s.highlight ? <mark key={i} className="rounded px-0.5 text-zinc-900" style={{ background: '#E9D5FF', borderRadius: 4 }}>{s.text}</mark> : <span key={i}>{s.text}</span>,
+            s.highlight ? <mark key={i} className="rounded-[4px] bg-accent-tint px-0.5 font-medium text-accent-ink">{s.text}</mark> : <span key={i}>{s.text}</span>,
           )}
         </p>
       </section>

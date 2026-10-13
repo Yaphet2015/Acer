@@ -63,7 +63,7 @@ export function Chat({ url, messages, setMessages, disabled }: {
         <div
           role="presentation"
           onClick={() => inputRef.current?.focus()}
-          className="flex cursor-text flex-col gap-2 rounded-control border border-line bg-field p-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.035)] transition-[border-color,box-shadow] duration-150 focus-within:border-line-strong"
+          className="flex cursor-text flex-col gap-2 rounded-control border border-line bg-field p-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.035)] transition-[border-color,box-shadow] duration-150 focus-within:border-accent focus-within:shadow-[0_0_0_3px_var(--accent-ring)]"
         >
           <textarea
             ref={inputRef} rows={1} value={input} disabled={disabled}
@@ -77,7 +77,7 @@ export function Chat({ url, messages, setMessages, disabled }: {
             <button
               type="button" aria-label="发送" title="发送" disabled={!canSend} onClick={send}
               className="flex size-7 items-center justify-center rounded-[8px] transition-[background-color,color,transform] duration-200 enabled:active:scale-[0.96]"
-              style={{ background: canSend ? 'var(--ink)' : 'var(--line-strong)', color: canSend ? 'var(--surface)' : 'var(--ink-2)' }}
+              style={{ background: canSend ? 'var(--accent)' : 'var(--line-strong)', color: canSend ? '#fff' : 'var(--ink-2)' }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
             </button>
