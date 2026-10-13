@@ -1,7 +1,9 @@
 import ReactDOM from 'react-dom/client';
 import { useEffect, useRef, useState } from 'react';
 import '@/assets/tailwind.css';
-import { getSettings, saveSettings } from '@/lib/settings';
+import { loadSettings, saveSettings } from '@/lib/storage';
+import { rpc } from '@/lib/messages';
+import { isLocalUrl } from '@/lib/url';
 import { Button } from '@/components/bui/Button';
 import { useMock } from '@/lib/mock';
 import { ModelCombobox } from '@/components/ModelCombobox';
@@ -18,17 +20,17 @@ function Options() {
   const [mError, setMError] = useState('');
   const [testing, setTesting] = useState(false);
   const [test, setTest] = useState<TestResult | null>(null);
-  const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/.test(s.baseUrl);
+  const isLocal = isLocalUrl(s.baseUrl);
   const canFetch = /^https?:\/\//.test(s.baseUrl) && (!!s.apiKey || isLocal);
   const reqId = useRef(0);
   const fetchModels = async () => {
     if (!canFetch) return;
     const id = ++reqId.current;
     setMLoading(true); setMError('');
-    const r = await chrome.runtime.sendMessage({ type: 'listModels', settings: { baseUrl: s.baseUrl, apiKey: s.apiKey } });
+    const r = await rpc('listModels', { settings: { baseUrl: s.baseUrl, apiKey: s.apiKey } });
     if (id !== reqId.current) return; // stale
     setMLoading(false);
-    if (r?.ok) setModels(r.models); else { setModels([]); setMError(r?.error ?? '未知错误'); }
+    if (r.ok) setModels(r.models); else { setModels([]); setMError(r.error || '未知错误'); }
   };
   useEffect(() => { // debounced auto-fetch when Base URL / key change
     if (!canFetch) { setModels([]); setMError(''); return; }
@@ -38,12 +40,12 @@ function Options() {
   }, [s.baseUrl, s.apiKey]);
   const runTest = async () => {
     setTesting(true); setTest(null);
-    const r = await chrome.runtime.sendMessage({ type: 'testConnection', settings: s });
+    const r = await rpc('testConnection', { settings: s });
     setTesting(false);
-    setTest(r?.ok ? r.result : { ok: false, ms: 0, error: r?.error ?? '未知错误' });
+    setTest(r.ok ? r.result : { ok: false, ms: 0, error: r.error || '未知错误' });
   };
   useEffect(() => {
-    getSettings().then(setS);
+    loadSettings().then(setS);
     chrome.commands.getAll((c) => setShortcut(c.find((x) => x.name === 'toggle-overlay')?.shortcut || ''));
   }, []);
   const field = (k: 'baseUrl' | 'apiKey' | 'model', label: string, type = 'text', ph = '') => (

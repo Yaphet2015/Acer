@@ -2,6 +2,7 @@ import ReactDOM from 'react-dom/client';
 import '@/assets/tailwind.css';
 import { App } from '@/components/App';
 import { bus } from '@/components/bus';
+import { rpc, TOGGLE } from '@/lib/messages';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
@@ -34,13 +35,13 @@ export default defineContentScript({
         }).then((u) => { ui = u; u.mount(); });
       } else bus.emit('toggle');
     };
-    chrome.runtime.onMessage.addListener((msg) => { if (msg?.type === 'toggle') toggle(); });
+    chrome.runtime.onMessage.addListener((msg) => { if (msg?.type === TOGGLE.type) toggle(); });
 
     // Fallback: if Chrome didn't assign the Ctrl+E / ⌘E command (conflict, or the user cleared it),
     // handle the key on the page ourselves. Not used when the user assigned a different shortcut.
     const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
     let fallback = false;
-    const refresh = () => chrome.runtime.sendMessage({ type: 'getShortcut' }).then((r) => { fallback = !r?.shortcut; }).catch(() => {});
+    const refresh = () => rpc('getShortcut', {}).then((r) => { if (r.ok) fallback = !r.shortcut; });
     refresh();
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
     window.addEventListener('keydown', (e) => {
