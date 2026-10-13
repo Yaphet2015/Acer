@@ -1,9 +1,9 @@
 # open-mind-extension
-Open-source browser extension inspired by YouMind's Chrome extension (clean-room reimplementation)
+Open-source AI reading companion for Chrome.
 
 ## 中文说明
 
-Open Mind 是一个开源的 Chrome 插件（Manifest V3），复刻 YouMind 插件的「AI 总结 + 大纲树（思维导图）+ 继续对话」体验，后端使用 BYOK（自带 OpenAI 兼容 API Key），数据全部保存在浏览器本地。
+Acer 是一个开源的 Chrome 插件（Manifest V3），提供「AI 总结 + 大纲树（思维导图）+ 继续对话」体验，后端使用 BYOK（自带 OpenAI 兼容 API Key），数据全部保存在浏览器本地。
 
 ### 功能
 - **快捷键唤起浮层**：默认 Mac `⌘E`、Windows/Linux `Ctrl+E`，按一次显示、再按一次隐藏；可在 `chrome://extensions/shortcuts` 自定义（设置页有直达链接）；点击工具栏图标也可切换。
