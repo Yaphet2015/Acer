@@ -1,0 +1,28 @@
+import http from 'node:http';
+import puppeteer from 'puppeteer-core';
+const OUT='/workspace/open-mind-extension/verify/v9/v4';
+const html = `<html><head><title>示例文章：如何设计 AI 原生界面</title></head><body><article><h1>如何设计 AI 原生界面</h1><p>${'这是一段示例正文，用来测试 Open Mind 的总结功能。'.repeat(40)}</p></article></body></html>`;
+const srv = http.createServer((q,r)=>{r.writeHead(200,{'content-type':'text/html; charset=utf-8'});r.end(html)}); await new Promise(r=>srv.listen(0,'127.0.0.1',r));
+const br = await puppeteer.launch({ executablePath:'/usr/bin/google-chrome', headless:true, pipe:true, enableExtensions:true, args:['--no-sandbox'], defaultViewport:{width:1280,height:800} });
+await br.installExtension('/tmp/swtest/ext');
+const sw = await (await br.waitForTarget(t=>t.type()==='service_worker')).worker();
+const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
+const page = await br.newPage(); await page.goto(`http://127.0.0.1:${srv.address().port}/`); await sleep(400);
+await sw.evaluate(async()=>{ await chrome.storage.local.clear(); await chrome.storage.local.set({settings:{baseUrl:'https://api.openai.com/v1',apiKey:'',model:'gpt-4o-mini',mock:false}}); const [t]=await chrome.tabs.query({active:true}); await chrome.tabs.sendMessage(t.id,{type:'toggle'}); });
+await sleep(2000);
+const S='document.querySelector("open-mind-overlay").shadowRoot'; const ev=(c)=>page.evaluate(new Function(c));
+console.log('layout:', JSON.stringify(await ev(`const p=${S}.querySelector('.fixed'); const pr=p.getBoundingClientRect(); const row=p.querySelector('[data-top-row]').getBoundingClientRect(); const tabs=[...p.querySelectorAll('button')].find(b=>b.innerText.includes('概览')).getBoundingClientRect(); const btns=[...p.querySelectorAll('[data-top-row] button[aria-label]')].map(b=>b.getAttribute('aria-label')+'|'+b.title); return {panelTop:pr.top, rowTop:row.top, rowH:row.height, tabsTop:Math.round(tabs.top), btns, hasLogoText:p.innerText.includes('Open Mind'), hasHandle:!!p.querySelector('[data-resize-handle]')}`)));
+await page.screenshot({path:`${OUT}/overview.png`});
+await ev(`${S}.querySelector('[aria-label="重新总结"]').click()`); await sleep(200);
+console.log('resum t+0.2:', await ev(`const b=${S}.querySelector('[aria-label="重新总结"]'); return b.title+' disabled='+b.disabled+' skeleton='+${S}.querySelector('.fixed').innerText.includes('正在总结')`));
+await sleep(1700); console.log('resum done:', await ev(`return ${S}.querySelector('[aria-label="重新总结"]').title`));
+await ev(`[...${S}.querySelectorAll('button')].find(b=>b.innerText.includes('对话')).click()`); await sleep(400);
+await ev(`${S}.querySelector('textarea').focus()`); await page.keyboard.type('这篇文章的核心观点是什么？'); await page.keyboard.press('Enter'); await sleep(3500);
+await ev(`${S}.querySelector('textarea').focus()`); await page.keyboard.type('追问：'); for (const l of ['能举个例子吗','再总结成三点']) { await page.keyboard.down('Shift'); await page.keyboard.press('Enter'); await page.keyboard.up('Shift'); await page.keyboard.type(l); }
+await page.screenshot({path:`${OUT}/chat.png`});
+await ev(`${S}.querySelector('[aria-label="最小化"]').click()`); await sleep(300);
+console.log('min:', JSON.stringify(await ev(`const p=${S}.querySelector('.fixed'); const r=p.getBoundingClientRect(); return {h:Math.round(r.height), w:Math.round(r.width), restoreBtn:!!p.querySelector('[aria-label="还原"]'), rowTitle:p.querySelector('[data-top-row]').title, text:p.innerText.replace(/\\s+/g,' ')}`)));
+await page.screenshot({path:`${OUT}/minimized.png`});
+await ev(`${S}.querySelector('[data-top-row]').click()`); await sleep(300);
+console.log('restored h:', await ev(`return Math.round(${S}.querySelector('.fixed').getBoundingClientRect().height)`));
+await br.close(); srv.close();
