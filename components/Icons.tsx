@@ -10,9 +10,6 @@ export const Close = S(<path d="M6 6l12 12M18 6L6 18" />);
 export const Refresh = S(<><path d="M20 11a8 8 0 10-2.3 5.7" /><path d="M20 5v6h-6" /></>);
 export const Check = S(<path d="M5 12.5l4.5 4.5L19 7.5" strokeWidth={2.2} />);
 export const Send = S(<path d="M5 12h14M13 6l6 6-6 6" />);
-export const Logo = ({ className = 'w-5 h-5' }: P) => (
-  <svg viewBox="0 0 24 24" className={className}><circle cx="12" cy="12" r="10" fill="#111" /><path d="M7 15c1.5-5 3-7 5-7s3.5 2 5 7" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" /></svg>
-);
 export const BulletIcons: Record<IconType, (p: P) => React.JSX.Element> = {
   target: S(<><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="4" /><circle cx="12" cy="12" r=".8" fill="currentColor" /></>),
   lightbulb: S(<><path d="M9 18h6M10 21h4" /><path d="M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0012 3z" /></>),

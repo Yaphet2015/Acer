@@ -11,6 +11,9 @@ describe('parseSummary', () => {
     const r = parseSummary(JSON.stringify({ overview: 'x', key_terms: ['x', 3], sections: [{ title: 'S', icon: 'rocket' }, { nope: 1 }] }));
     expect(r).toEqual({ overview: 'x', keyTerms: ['x'], sections: [{ title: 'S', icon: 'list', bullets: [] }] });
   });
+  it('rejects a section with an empty title (as the old zod schema did)', () => {
+    expect(() => parseSummary(JSON.stringify({ overview: 'x', sections: [{ title: '  ', icon: 'list' }] }))).toThrow(/title/);
+  });
   it('throws on invalid output', () => {
     expect(() => parseSummary('no json here')).toThrow();
     expect(() => parseSummary('{"sections":[]}')).toThrow(/overview/);

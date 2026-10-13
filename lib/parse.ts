@@ -1,11 +1,13 @@
-import { z } from 'zod';
 import { ICON_TYPES, type IconType, type Summary } from './types';
 
-export const SummarySchema = z.object({
-  overview: z.string().min(1),
-  keyTerms: z.array(z.string()),
-  sections: z.array(z.object({ title: z.string().min(1), icon: z.enum(ICON_TYPES as [IconType, ...IconType[]]), bullets: z.array(z.string()) })),
-});
+/** Structural check for a Summary (replaces the former zod schema; same rules). */
+export function isSummary(v: any): v is Summary {
+  return !!v && typeof v.overview === 'string' && v.overview.length > 0
+    && Array.isArray(v.keyTerms) && v.keyTerms.every((t: unknown) => typeof t === 'string')
+    && Array.isArray(v.sections) && v.sections.every((s: any) =>
+      s && typeof s.title === 'string' && s.title.length > 0 && ICON_TYPES.includes(s.icon)
+      && Array.isArray(s.bullets) && s.bullets.every((b: unknown) => typeof b === 'string'));
+}
 
 /** Extract and validate the summary JSON returned by the LLM (tolerates code fences / prose). */
 export function parseSummary(text: string): Summary {
@@ -26,7 +28,9 @@ export function parseSummary(text: string): Summary {
       icon: (ICON_TYPES.includes(x.icon) ? x.icon : 'list') as IconType,
       bullets: (Array.isArray(x.bullets) ? x.bullets : []).filter((b: unknown) => typeof b === 'string').map((b: string) => b.trim()),
     }));
-  return SummarySchema.parse({ overview: raw.overview.trim(), keyTerms, sections });
+  const summary = { overview: raw.overview.trim(), keyTerms, sections };
+  if (!isSummary(summary)) throw new Error('Invalid summary: every section needs a non-empty title');
+  return summary;
 }
 
 export type Segment = { text: string; highlight: boolean };

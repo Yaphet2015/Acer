@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { buildMockSummary, MOCK_DELAY_MS, mockReplyText, mockStream, mockSummary, useMock } from '../lib/mock';
-import { SummarySchema } from '../lib/parse';
+import { isSummary } from '../lib/parse';
 
 const base = { baseUrl: 'https://api.openai.com/v1', apiKey: 'sk', model: 'm', mock: false };
 
@@ -18,7 +18,7 @@ describe('mock provider', () => {
     await vi.advanceTimersByTimeAsync(MOCK_DELAY_MS - 50); expect(done).toBe(false);
     await vi.advanceTimersByTimeAsync(100);
     const s = await p; vi.useRealTimers();
-    expect(SummarySchema.parse(s).sections).toHaveLength(3);
+    expect(isSummary(s)).toBe(true); expect(s.sections).toHaveLength(3);
     for (const t of s.keyTerms) expect(s.overview).toContain(t);
     expect(buildMockSummary('X').sections.every((x) => x.bullets.length >= 2)).toBe(true);
   });
