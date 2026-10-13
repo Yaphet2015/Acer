@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { extractPage } from '@/lib/extract';
 import { normalizeUrl } from '@/lib/url';
 import type { Summary } from '@/lib/types';
@@ -9,12 +9,11 @@ import { Check, Close, Minus, Refresh, Restore } from './Icons';
 import { Overview } from './Overview';
 import { Segmented, type Tab } from './Segmented';
 import { Skeleton } from './Skeleton';
-import { clampWidth, DEFAULT_WIDTH } from '@/lib/width';
+import { rpc } from '@/lib/messages';
+import { useResizableWidth } from './useResizableWidth';
 import { Button } from './bui/Button';
 import LoadingState from './bui/LoadingState';
 import { Shimmer } from './bui/Shimmer';
-
-const send = (msg: any) => chrome.runtime.sendMessage(msg) as Promise<any>;
 
 export function App() {
   const [open, setOpen] = useState(true);
@@ -27,41 +26,7 @@ export function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [flash, setFlash] = useState('');
-  const [width, setWidth] = useState(DEFAULT_WIDTH);
-  const [resizing, setResizing] = useState(false);
-  const drag = useRef<{ x: number; w: number } | null>(null);
-  const lastDown = useRef(0);
-  const moved = useRef(false);
-
-  useEffect(() => {
-    chrome.storage.local.get('panelWidth').then(({ panelWidth }) => { if (typeof panelWidth === 'number') setWidth(clampWidth(panelWidth, innerWidth)); });
-    const onResize = () => setWidth((w) => clampWidth(w, innerWidth));
-    addEventListener('resize', onResize);
-    return () => removeEventListener('resize', onResize);
-  }, []);
-  const saveWidth = (w: number) => chrome.storage.local.set({ panelWidth: w });
-  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0) return;
-    e.preventDefault();
-    // Manual double-click detection: pointer capture + preventDefault can swallow the native dblclick.
-    if (e.detail >= 2 || (e.timeStamp - lastDown.current < 350 && !moved.current)) { lastDown.current = 0; resetWidth(); return; }
-    lastDown.current = e.timeStamp; moved.current = false;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    drag.current = { x: e.clientX, w: width };
-    setResizing(true);
-  };
-  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!drag.current) return;
-    if (Math.abs(e.clientX - drag.current.x) > 2) moved.current = true;
-    setWidth(clampWidth(drag.current.w + (drag.current.x - e.clientX), innerWidth)); // panel is right-anchored: drag left = wider
-  };
-  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!drag.current) return;
-    drag.current = null; setResizing(false);
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
-    setWidth((w) => { saveWidth(w); return w; });
-  };
-  const resetWidth = () => { setWidth(clampWidth(DEFAULT_WIDTH, innerWidth)); saveWidth(DEFAULT_WIDTH); };
+  const { width, resizing, handleProps } = useResizableWidth();
 
   const run = useCallback(async (force: boolean) => {
     const u = normalizeUrl(location.href);
@@ -70,12 +35,12 @@ export function App() {
     if (force) { setSummary(null); setTab('overview'); setMin(false); }
     try {
       if (!force) {
-        const c = await send({ type: 'getCached', url: u });
+        const c = await rpc('getCached', { url: u });
         if (c.ok && c.cached) { setSummary(c.cached.summary); setTitle(c.cached.title); setChatKey((k) => k + 1); return; }
       }
       const page = extractPage();
       setTitle(page.title);
-      const r = await send({ type: 'summarize', url: u, title: page.title, content: page.content, force });
+      const r = await rpc('summarize', { url: u, title: page.title, content: page.content, force });
       if (!r.ok) throw new Error(r.error);
       // keep the skeleton visible briefly so a fast re-summarize still reads as "something happened"
       if (force) await new Promise((res) => setTimeout(res, Math.max(0, 500 - (Date.now() - t0))));
@@ -105,7 +70,7 @@ export function App() {
           <div
             role="separator" aria-orientation="vertical" aria-label="拖动调整宽度，双击恢复默认" title="拖动调整宽度，双击恢复默认"
             data-resize-handle
-            onPointerDown={onPointerDown} onMouseDown={(e) => { if (e.detail === 2) resetWidth(); }} onPointerMove={onPointerMove} onPointerUp={endDrag} onPointerCancel={endDrag}
+            {...handleProps}
             className="group absolute inset-y-0 left-0 z-10 w-2 cursor-col-resize touch-none"
           >
             <span className={`absolute inset-y-3 left-0.5 w-[3px] rounded-full transition-colors duration-150 ${resizing ? 'bg-accent' : 'bg-transparent group-hover:bg-line-strong'}`} />
@@ -157,14 +122,11 @@ export function App() {
 }
 
 function ErrorView({ error, retry }: { error: string; retry: () => void }) {
-  const noKey = error.includes('NO_KEY');
   return (
     <div className="space-y-3 p-6 text-center text-[13px] text-zinc-600">
-      <p>{noKey ? '请先在设置页填写 API Key。' : `总结失败：${error}`}</p>
+      <p>总结失败：{error}</p>
       <div className="flex justify-center gap-2">
-        {noKey
-          ? <Button variant="primary" size="sm" onClick={() => send({ type: 'openOptions' })}>打开设置</Button>
-          : <Button variant="secondary" size="sm" onClick={retry}>重试</Button>}
+        <Button variant="secondary" size="sm" onClick={retry}>重试</Button>
       </div>
     </div>
   );
