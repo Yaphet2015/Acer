@@ -1,0 +1,34 @@
+import http from 'node:http';
+import puppeteer from 'puppeteer-core';
+const OUT='/workspace/open-mind-extension/verify/v9/opt';
+const MODELS=['gpt-4o','gpt-4o-mini','gpt-4.1','gpt-4.1-mini','o3-mini','deepseek-chat','qwen-plus','llama-3.1-8b'];
+const srv = http.createServer((req,res)=>{ const ok=req.headers.authorization==='Bearer sk-good';
+  if (req.url==='/v1/models'){ if(!ok){res.writeHead(401);return res.end('{"error":{"message":"invalid api key"}}');} setTimeout(()=>{res.writeHead(200,{'content-type':'application/json'});res.end(JSON.stringify({data:MODELS.map(id=>({id}))}));},400); return; }
+  let b='';req.on('data',c=>b+=c);req.on('end',()=>{ const body=JSON.parse(b); if(!ok){res.writeHead(401);return res.end('{"error":{"message":"invalid api key"}}');}
+    setTimeout(()=>{ res.writeHead(200,{'content-type':'text/event-stream'}); res.write(`data: ${JSON.stringify({id:'1',object:'chat.completion.chunk',created:0,model:body.model,choices:[{index:0,delta:{content:'pong'},finish_reason:null}]})}\n\n`); res.write(`data: ${JSON.stringify({id:'1',object:'chat.completion.chunk',created:0,model:body.model,choices:[{index:0,delta:{},finish_reason:'stop'}]})}\n\n`); res.end('data: [DONE]\n\n'); },250); }); });
+await new Promise(r=>srv.listen(0,'127.0.0.1',r)); const base=`http://127.0.0.1:${srv.address().port}/v1`;
+const br = await puppeteer.launch({ executablePath:'/usr/bin/google-chrome', headless:true, pipe:true, enableExtensions:true, args:['--no-sandbox'] });
+await br.installExtension('/tmp/swtest/ext');
+const swt = await br.waitForTarget(t=>t.type()==='service_worker'); const id=new URL(swt.url()).host;
+const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
+const p = await br.newPage(); await p.setViewport({width:900,height:820}); await p.goto(`chrome-extension://${id}/options.html`); await sleep(500);
+const status = () => p.$eval('[data-model-status]', e=>e.innerText);
+const setField = async (ph, v) => { const el = await p.$(`input[placeholder="${ph}"]`); await el.click(); await p.keyboard.down('Control'); await p.keyboard.press('KeyA'); await p.keyboard.up('Control'); await p.keyboard.press('Backspace'); await el.type(v); };
+await setField('https://api.openai.com/v1', base); await setField('sk-...', 'sk-bad'); await sleep(200);
+console.log('debouncing:', await status()); await sleep(800); console.log('loading?:', await status()); await sleep(800);
+console.log('bad key:', await status()); await p.screenshot({path:`${OUT}/options-models-error.png`});
+await setField('sk-...', 'sk-good'); await sleep(900); console.log('loading:', await status()); await sleep(800); console.log('good:', await status());
+const combo = await p.$('input[role=combobox]'); await combo.click(); await p.keyboard.down('Control'); await p.keyboard.press('KeyA'); await p.keyboard.up('Control'); await p.keyboard.press('Backspace'); await combo.type('mini'); await sleep(200);
+console.log('filtered:', await p.$$eval('[role=option]', els=>els.map(e=>e.innerText)));
+await p.screenshot({path:`${OUT}/options-model-list.png`});
+await p.keyboard.press('ArrowDown'); await p.keyboard.press('Enter'); console.log('picked:', await p.$eval('input[role=combobox]', e=>e.value));
+const btn = async (t) => (await p.$$('button')).find(async b=>true) && p.evaluate((t)=>[...document.querySelectorAll('button')].find(b=>b.innerText.includes(t)).click(), t);
+await btn('测试连接'); await sleep(100); console.log('testing:', await p.$eval('[data-test-result]', e=>e.innerText)); await sleep(1500);
+console.log('test ok:', await p.$eval('[data-test-result]', e=>e.innerText));
+await p.screenshot({path:`${OUT}/options-test-success.png`});
+await combo.click(); await p.keyboard.down('Control'); await p.keyboard.press('KeyA'); await p.keyboard.up('Control'); await p.keyboard.press('Backspace'); await combo.type('my-custom-model'); await p.keyboard.press('Escape');
+console.log('custom:', await p.$eval('input[role=combobox]', e=>e.value));
+await setField('sk-...', 'sk-bad'); await sleep(100); await btn('测试连接'); await sleep(1500);
+console.log('test err:', await p.$eval('[data-test-result]', e=>e.innerText));
+await p.screenshot({path:`${OUT}/options-test-error.png`});
+await br.close(); srv.close();

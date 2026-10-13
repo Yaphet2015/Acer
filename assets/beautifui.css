@@ -1,0 +1,47 @@
+/*
+ * Beautiful UI foundation (subset) — https://www.beautifului.dev  (MIT License)
+ * Ported from the registry's Tailwind v4 foundation.css to plain CSS for our Tailwind v3 + Shadow DOM setup:
+ * tokens are declared on :host (Shadow DOM) as well as :root (options page); light theme only.
+ * --shadow-xs/sm approximate shadow-plugin's layered stacks.
+ */
+:host, :root {
+  /* single brand accent token — change this one value to re-theme */
+  --om-accent: #1677ff;
+  --page: oklch(0.985 0.001 286.376);
+  --canvas: oklch(0.961 0.002 247.84);
+  --surface: oklch(1 0 0);
+  --inset: oklch(0.979 0.002 247.839);
+  --hover: oklch(0.97 0.002 247.839);
+  --hover-2: oklch(0.933 0.003 247.86);
+  --ink: oklch(0.247 0.006 258.361);
+  --ink-2: oklch(0.506 0.01 264.477);
+  --ink-3: oklch(0.695 0.009 264.505);
+  --line: oklch(0.946 0.003 264.542);
+  --line-strong: oklch(0.912 0.005 258.326);
+  --field: oklch(0.961 0.001 286.375);
+  --accent: var(--om-accent);
+  --accent-ink: color-mix(in srgb, var(--om-accent) 82%, black);   /* darker, for text on tint */
+  --accent-tint: color-mix(in srgb, var(--om-accent) 12%, transparent); /* ≈ rgba(22,119,255,.12) */
+  --accent-ring: color-mix(in srgb, var(--om-accent) 22%, transparent);
+  --green: oklch(0.603 0.155 150.883);
+  --red: oklch(0.621 0.192 23.042);
+  --red-tint: oklch(0.956 0.017 17.462);
+  --shadow-xs: 0 1px 1px oklch(0 0 0 / 0.03), 0 1px 2px oklch(0 0 0 / 0.04);
+  --shadow-sm: 0 1px 1px oklch(0 0 0 / 0.02), 0 2px 4px oklch(0 0 0 / 0.04), 0 4px 8px oklch(0 0 0 / 0.03);
+  --shadow-btn: 0 0 0 1px var(--line-strong), var(--shadow-xs);
+  --shadow-card: 0 0 0 1px var(--line), var(--shadow-sm);
+}
+
+@keyframes shimmer-text { from { background-position: 150% center; } to { background-position: -50% center; } }
+@keyframes pixel-on { 0%, 100% { opacity: 0.15; } 18%, 42% { opacity: 1; } 62% { opacity: 0.15; } }
+@keyframes pop-in { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+/* StreamText caret + tail */
+.stream-tail { filter: blur(1.6px); -webkit-mask-image: linear-gradient(to right, oklch(0 0 0) 20%, oklch(0 0 0 / 0.2)); mask-image: linear-gradient(to right, oklch(0 0 0) 20%, oklch(0 0 0 / 0.2)); }
+.stream-caret { display: inline-block; width: 2px; height: 1.05em; margin-left: 1.5px; translate: 0 -0.5px; border-radius: 1px; background: var(--accent); vertical-align: text-bottom; animation: caret-blink 1s step-end infinite; }
+.stream-caret.is-streaming { animation: none; }
+@keyframes caret-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .stream-caret { animation: none; }
+  .stream-tail { filter: none; -webkit-mask-image: none; mask-image: none; }
+}
