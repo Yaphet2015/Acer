@@ -5,7 +5,7 @@ import { normalizeUrl } from '@/lib/url';
 import type { ChatMessage, Summary } from '@/lib/types';
 import { bus } from './bus';
 import { Chat } from './Chat';
-import { Close, Logo, Minus, Refresh, Restore } from './Icons';
+import { Check, Close, Minus, Refresh, Restore } from './Icons';
 import { Overview } from './Overview';
 import { Segmented, type Tab } from './Segmented';
 import { Skeleton } from './Skeleton';
@@ -110,32 +110,29 @@ export function App() {
           >
             <span className={`absolute inset-y-3 left-0.5 w-[3px] rounded-full transition-colors duration-150 ${resizing ? 'bg-accent' : 'bg-transparent group-hover:bg-line-strong'}`} />
           </div>
-          <header
-            className={`flex h-12 shrink-0 items-center justify-between px-4 ${min ? 'cursor-pointer hover:bg-zinc-50' : ''}`}
+          {/* top row: tabs on the left, compact icon actions on the right (also the slim bar when minimized) */}
+          <div
+            data-top-row
+            className={`flex h-11 shrink-0 items-center justify-between gap-2 pl-3 pr-2 ${min ? 'cursor-pointer hover:bg-zinc-50' : 'border-b border-zinc-100'}`}
             title={min ? '点击还原' : undefined}
             onClick={() => min && setMin(false)}
           >
-            <div className="flex min-w-0 items-center gap-2">
-              <Logo /><span className="text-[14px] font-semibold">Open Mind</span>
-              {min && <span className="min-w-0 truncate text-[12px] text-ink-2">· {loading ? <Shimmer>总结中…</Shimmer> : title}</span>}
-            </div>
-            <div className="flex items-center gap-1 text-ink-2">
+            <Segmented value={tab} onChange={(t) => { setTab(t); setMin(false); }} className="mx-0" />
+            {min && <span className="min-w-0 flex-1 truncate text-[12px] text-ink-2">{loading ? <Shimmer>总结中…</Shimmer> : title}</span>}
+            <div className="flex shrink-0 items-center gap-0.5 text-ink-2">
+              <Button variant="quiet" size="icon" onClick={(e) => { e.stopPropagation(); run(true); }} disabled={loading}
+                title={loading ? '总结中…' : flash ? '已更新' : '重新总结'} aria-label="重新总结">
+                {flash && !loading ? <Check className="h-4 w-4 text-green" /> : <Refresh className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />}
+              </Button>
               <Button variant="quiet" size="icon" title={min ? '还原' : '最小化'} aria-label={min ? '还原' : '最小化'}
                 onClick={(e) => { e.stopPropagation(); setMin((m) => !m); }}>
                 {min ? <Restore /> : <Minus />}
               </Button>
               <Button variant="quiet" size="icon" title="关闭" aria-label="关闭" onClick={(e) => { e.stopPropagation(); setOpen(false); }}><Close /></Button>
             </div>
-          </header>
+          </div>
           {!min && (
             <>
-              <div className="flex shrink-0 items-center gap-2 border-y border-zinc-100 px-4 py-2.5">
-                <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-zinc-700" title={title}>{title}</span>
-                <Button variant="secondary" size="xs" onClick={() => run(true)} disabled={loading} title="忽略缓存，重新生成总结" className="shrink-0">
-                  <Refresh className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} /> {loading ? '总结中…' : flash || '重新总结'}
-                </Button>
-              </div>
-              <div className="shrink-0 border-b border-zinc-100 py-2"><Segmented value={tab} onChange={setTab} /></div>
               <div className="relative min-h-0 flex-1">
                 {tab === 'overview' ? (
                   <div className="om-scroll h-full overflow-y-auto">

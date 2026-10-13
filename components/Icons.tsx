@@ -8,6 +8,7 @@ export const Minus = S(<path d="M5 12h14" strokeWidth={2.4} />);
 export const Restore = S(<><rect x="5" y="5" width="14" height="14" rx="3" strokeWidth={2.2} /></>);
 export const Close = S(<path d="M6 6l12 12M18 6L6 18" />);
 export const Refresh = S(<><path d="M20 11a8 8 0 10-2.3 5.7" /><path d="M20 5v6h-6" /></>);
+export const Check = S(<path d="M5 12.5l4.5 4.5L19 7.5" strokeWidth={2.2} />);
 export const Send = S(<path d="M5 12h14M13 6l6 6-6 6" />);
 export const Logo = ({ className = 'w-5 h-5' }: P) => (
   <svg viewBox="0 0 24 24" className={className}><circle cx="12" cy="12" r="10" fill="#111" /><path d="M7 15c1.5-5 3-7 5-7s3.5 2 5 7" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" /></svg>
