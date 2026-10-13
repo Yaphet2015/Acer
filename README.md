@@ -1,4 +1,4 @@
-# open-mind-extension
+# Acer
 Open-source AI reading companion for Chrome.
 
 ## 中文说明
