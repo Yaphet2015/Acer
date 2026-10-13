@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { extractPage } from '@/lib/extract';
 import { normalizeUrl } from '@/lib/url';
 import type { ChatMessage, Summary } from '@/lib/types';
@@ -9,6 +9,7 @@ import { Close, Logo, Minus, Refresh, Restore } from './Icons';
 import { Overview } from './Overview';
 import { Segmented, type Tab } from './Segmented';
 import { Skeleton } from './Skeleton';
+import { clampWidth, DEFAULT_WIDTH } from '@/lib/width';
 import { Button } from './bui/Button';
 import LoadingState from './bui/LoadingState';
 import { Shimmer } from './bui/Shimmer';
@@ -26,6 +27,41 @@ export function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [flash, setFlash] = useState('');
+  const [width, setWidth] = useState(DEFAULT_WIDTH);
+  const [resizing, setResizing] = useState(false);
+  const drag = useRef<{ x: number; w: number } | null>(null);
+  const lastDown = useRef(0);
+  const moved = useRef(false);
+
+  useEffect(() => {
+    chrome.storage.local.get('panelWidth').then(({ panelWidth }) => { if (typeof panelWidth === 'number') setWidth(clampWidth(panelWidth, innerWidth)); });
+    const onResize = () => setWidth((w) => clampWidth(w, innerWidth));
+    addEventListener('resize', onResize);
+    return () => removeEventListener('resize', onResize);
+  }, []);
+  const saveWidth = (w: number) => chrome.storage.local.set({ panelWidth: w });
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    // Manual double-click detection: pointer capture + preventDefault can swallow the native dblclick.
+    if (e.detail >= 2 || (e.timeStamp - lastDown.current < 350 && !moved.current)) { lastDown.current = 0; resetWidth(); return; }
+    lastDown.current = e.timeStamp; moved.current = false;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    drag.current = { x: e.clientX, w: width };
+    setResizing(true);
+  };
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!drag.current) return;
+    if (Math.abs(e.clientX - drag.current.x) > 2) moved.current = true;
+    setWidth(clampWidth(drag.current.w + (drag.current.x - e.clientX), innerWidth)); // panel is right-anchored: drag left = wider
+  };
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!drag.current) return;
+    drag.current = null; setResizing(false);
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+    setWidth((w) => { saveWidth(w); return w; });
+  };
+  const resetWidth = () => { setWidth(clampWidth(DEFAULT_WIDTH, innerWidth)); saveWidth(DEFAULT_WIDTH); };
 
   const run = useCallback(async (force: boolean) => {
     const u = normalizeUrl(location.href);
@@ -63,8 +99,17 @@ export function App() {
           initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
           className="fixed right-5 top-5 flex flex-col overflow-hidden bg-white font-sans text-zinc-900 antialiased"
-          style={{ width: 380, minWidth: 380, maxWidth: 380, boxSizing: 'border-box', borderRadius: 14, boxShadow: '0 8px 24px rgba(0,0,0,.1)', height: min ? 'auto' : 'calc(100vh - 40px)', border: '1px solid rgba(0,0,0,.06)' }}
+          style={{ width, minWidth: width, maxWidth: width, boxSizing: 'border-box', userSelect: resizing ? 'none' : undefined, borderRadius: 14, boxShadow: '0 8px 24px rgba(0,0,0,.1)', height: min ? 'auto' : 'calc(100vh - 40px)', border: '1px solid rgba(0,0,0,.06)' }}
         >
+          {/* left-edge resize handle */}
+          <div
+            role="separator" aria-orientation="vertical" aria-label="拖动调整宽度，双击恢复默认" title="拖动调整宽度，双击恢复默认"
+            data-resize-handle
+            onPointerDown={onPointerDown} onMouseDown={(e) => { if (e.detail === 2) resetWidth(); }} onPointerMove={onPointerMove} onPointerUp={endDrag} onPointerCancel={endDrag}
+            className="group absolute inset-y-0 left-0 z-10 w-2 cursor-col-resize touch-none"
+          >
+            <span className={`absolute inset-y-3 left-0.5 w-[3px] rounded-full transition-colors duration-150 ${resizing ? 'bg-accent' : 'bg-transparent group-hover:bg-line-strong'}`} />
+          </div>
           <header
             className={`flex h-12 shrink-0 items-center justify-between px-4 ${min ? 'cursor-pointer hover:bg-zinc-50' : ''}`}
             title={min ? '点击还原' : undefined}

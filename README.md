@@ -9,6 +9,7 @@ Open Mind 是一个开源的 Chrome 插件（Manifest V3），复刻 YouMind 插
 - **快捷键唤起浮层**：默认 `Alt+Shift+M`，可在 `chrome://extensions/shortcuts` 自定义（设置页有直达链接）；点击工具栏图标也可切换。
 - **AI 总结 + 大纲树**：用 [defuddle](https://github.com/kepano/defuddle) 提取正文（Markdown），交给 LLM 生成结构化 JSON（Overview、关键词高亮、分节大纲）。
 - **继续对话**：Chat 标签页基于总结和正文继续提问，回复逐字流式输出，对话按页面保存。
+- **可调宽度**：拖动浮层左边缘调整宽度（320–640px，且不超过窗口宽度减 40px），宽度会被记住；双击左边缘恢复默认 380px。
 - **24 小时缓存**：同一 URL（去掉 hash 和 utm 等追踪参数）24 小时内再次打开直接读缓存；点「Re-summarize」强制重新总结（会清空该页对话）。
 
 ### 安装与开发
