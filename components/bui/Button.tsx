@@ -8,8 +8,7 @@ const filledShadow = 'shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]';
 export const buttonVariants = cva(
   `inline-flex items-center justify-center font-medium select-none
    transition-[transform,background-color,opacity] duration-150 ease-out
-   active:scale-[0.96] disabled:opacity-50 disabled:pointer-events-none
-   outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1`,
+   active:scale-[0.96] disabled:opacity-50 disabled:pointer-events-none`,
   {
     variants: {
       variant: {
