@@ -1,11 +1,12 @@
 import type { Settings, Summary } from './types';
+import { isLocalUrl } from './url';
 
 export const MOCK_DELAY_MS = 1200;
 
 /** Mock mode is used when toggled on, or when no API key is set (local servers like Ollama excepted). */
 export function useMock(s: Settings): boolean {
   if (s.mock) return true;
-  return !s.apiKey && !/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/.test(s.baseUrl);
+  return !s.apiKey && !isLocalUrl(s.baseUrl);
 }
 
 const sleep = (ms: number, signal?: AbortSignal) => new Promise<void>((res, rej) => {

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { createCache, isFresh, TTL_MS, type KV } from '../lib/cache';
+import { createCache, isFresh, TTL_MS } from '../lib/cache';
+import { memKV } from '../lib/storage';
 import { normalizeUrl } from '../lib/url';
 
-const memKV = (): KV => { const m = new Map<string, unknown>(); return { get: async (k) => m.get(k), set: async (k, v) => void m.set(k, v), remove: async (k) => void m.delete(k) }; };
 const summary = { overview: 'x', keyTerms: [], sections: [] };
 
 describe('cache TTL', () => {
@@ -23,10 +23,10 @@ describe('cache TTL', () => {
   it('clearSummary also clears chat (re-summarize)', async () => {
     const c = createCache(memKV());
     await c.setSummary('u', { summary, content: 'c', title: 't' });
-    await c.setChat('u', [{ role: 'user', content: 'hi' }]);
+    await c.setSessions('u', { active: 'main', sessions: [{ id: 'main', name: '主线', messages: [{ role: 'user', content: 'hi' }], createdAt: 0 }] });
     await c.clearSummary('u');
     expect(await c.getSummary('u')).toBeNull();
-    expect(await c.getChat('u')).toEqual([]);
+    expect((await c.getSessions('u')).sessions[0]!.messages).toEqual([]);
   });
   it('normalizes URLs for cache keys', () => {
     expect(normalizeUrl('https://www.Example.com/a/?utm_source=x&b=2&a=1#top')).toBe('https://example.com/a/?a=1&b=2');

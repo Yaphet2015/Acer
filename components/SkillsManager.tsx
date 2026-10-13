@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { chromeKV } from '@/lib/cache';
+import { chromeKV } from '@/lib/storage';
 import { createSkillStore, renderTemplate, validateSkill, type Skill } from '@/lib/skills';
 import { Button } from './bui/Button';
 
@@ -8,7 +8,7 @@ const EMPTY: Draft = { name: '', icon: '', template: '{{input}}' };
 const inputCls = 'w-full rounded-lg border border-zinc-200 px-3 py-2 text-[14px] outline-none focus:border-accent focus:shadow-[0_0_0_3px_var(--accent-ring)]';
 
 export function SkillsManager() {
-  const store = useRef(createSkillStore(chromeKV())).current;
+  const store = useRef(createSkillStore(chromeKV)).current;
   const [skills, setSkills] = useState<Skill[]>([]);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [err, setErr] = useState('');

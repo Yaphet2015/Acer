@@ -16,3 +16,6 @@ export function normalizeUrl(raw: string): string {
     return raw;
   }
 }
+
+/** localhost / 127.0.0.1 / [::1] base URLs (e.g. Ollama) work without an API key. */
+export const isLocalUrl = (u: string) => /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/.test(u);

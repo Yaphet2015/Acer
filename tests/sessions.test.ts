@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { appendMessages, closeSession, forkSession, initialState, MAIN_ID, parseSide, setActive } from '../lib/sessions';
-import { createCache, type KV } from '../lib/cache';
+import { createCache } from '../lib/cache';
+import { memKV } from '../lib/storage';
 
-const memKV = (): KV => { const m = new Map<string, unknown>(); return { get: async (k) => structuredClone(m.get(k)), set: async (k, v) => void m.set(k, structuredClone(v)), remove: async (k) => void m.delete(k) }; };
 
 describe('parseSide', () => {
   it('parses /side with and without a message', () => {

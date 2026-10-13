@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { bumpRecent, createSkillStore, DEFAULT_SKILLS, orderByRecent, renderTemplate } from '../lib/skills';
-import type { KV } from '../lib/cache';
+import { memKV } from '../lib/storage';
 
-const memKV = (): KV => { const m = new Map<string, unknown>(); return { get: async (k) => structuredClone(m.get(k)), set: async (k, v) => void m.set(k, structuredClone(v)), remove: async (k) => void m.delete(k) }; };
 let n = 0; const gen = () => `s${++n}`;
 
 describe('renderTemplate', () => {

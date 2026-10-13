@@ -1,4 +1,4 @@
-import type { KV } from './cache';
+import { KEYS, type KV } from './storage';
 
 export interface Skill { id: string; name: string; icon?: string; template: string; builtin?: boolean }
 
@@ -28,8 +28,8 @@ export function validateSkill(s: Partial<Skill>): string | null {
   return null;
 }
 
-const K_SKILLS = 'skills';
-const K_RECENT = 'skillsRecent';
+const K_SKILLS = KEYS.skills;
+const K_RECENT = KEYS.skillsRecent;
 
 /** Most-recently-used first; never-used skills follow in list order. Unknown ids are dropped. */
 export function orderByRecent(skills: Skill[], recent: string[]): Skill[] {
