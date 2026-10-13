@@ -32,3 +32,6 @@ npm test         # Vitest 单元测试
 
 ### 技术栈
 WXT · React · TypeScript · Tailwind CSS · Framer Motion · pi durable (pi-ai) · zod · Shadow DOM 渲染浮层
+
+### 致谢
+部分 UI 组件（Button、Shimmer、LoadingState、对话输入框和气泡样式、流式光标、设计 token）改编自 [Beautiful UI](https://www.beautifului.dev)（MIT License），源码在 `components/bui/` 和 `assets/beautifui.css`。

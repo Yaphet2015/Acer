@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 export type Tab = 'overview' | 'chat';
-const TABS: { id: Tab; label: string }[] = [{ id: 'overview', label: 'Overview' }, { id: 'chat', label: 'Chat' }];
+const TABS: { id: Tab; label: string }[] = [{ id: 'overview', label: '概览' }, { id: 'chat', label: '对话' }];
 export function Segmented({ value, onChange }: { value: Tab; onChange: (t: Tab) => void }) {
   return (
     <div className="mx-auto flex w-fit rounded-full bg-zinc-100 p-1">

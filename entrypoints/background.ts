@@ -49,7 +49,7 @@ export default defineBackground(() => {
     port.onMessage.addListener(async ({ url, text }: { url: string; text: string }) => {
       try {
         const c = await cache.getSummary(url);
-        if (!c) throw new Error('Summary expired, please re-summarize.');
+        if (!c) throw new Error('总结已过期，请点击「重新总结」。');
         const prior: ChatMessage[] = await cache.getChat(url);
         const s = await getSettings();
         const onDelta = (d: string) => port.postMessage({ delta: d });

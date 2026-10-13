@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChatMessage } from '@/lib/types';
-import { Send } from './Icons';
 
 export function Chat({ url, messages, setMessages, disabled }: {
   url: string; messages: ChatMessage[]; setMessages: (f: (m: ChatMessage[]) => ChatMessage[]) => void; disabled: boolean;
@@ -8,6 +7,7 @@ export function Chat({ url, messages, setMessages, disabled }: {
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const end = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => { end.current?.scrollIntoView({ block: 'end' }); }, [messages]);
 
   const send = () => {
@@ -26,26 +26,51 @@ export function Chat({ url, messages, setMessages, disabled }: {
     port.postMessage({ url, text });
   };
 
+  const canSend = !!input.trim() && !busy && !disabled;
   return (
     <div className="flex h-full flex-col">
-      <div className="om-scroll flex-1 space-y-3 overflow-y-auto px-4 py-4">
-        {!messages.length && <p className="pt-8 text-center text-[13px] text-zinc-400">Ask anything about this page.</p>}
-        {messages.map((m, i) => (
-          <div key={i} className={m.role === 'user' ? 'flex justify-end' : ''}>
-            <div className={`max-w-[88%] whitespace-pre-wrap break-words text-[13px] leading-[1.65] ${m.role === 'user' ? 'rounded-2xl rounded-br-md bg-zinc-900 px-3 py-2 text-white' : 'text-zinc-800'}`}>
-              {m.content || (busy && i === messages.length - 1 ? <span className="inline-block h-3 w-1.5 animate-pulse bg-zinc-400" /> : '')}
+      <div className="om-scroll flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto px-4 py-3">
+        {!messages.length && <p className="pt-8 text-center text-[13px] text-ink-3">关于这个页面，随便问点什么。</p>}
+        {messages.map((m, i) => {
+          const streaming = busy && i === messages.length - 1 && m.role === 'assistant';
+          return m.role === 'user' ? (
+            /* user bubble — Beautiful UI ChatComposer style */
+            <div key={i} className="flex justify-end pl-14" style={{ animation: 'pop-in 200ms cubic-bezier(0.23,1,0.32,1) both' }}>
+              <div className="whitespace-pre-wrap break-words rounded-xl bg-field px-3 py-1.5 text-[13px] leading-[1.4] text-ink">{m.content}</div>
             </div>
-          </div>
-        ))}
+          ) : (
+            <div key={i} className="whitespace-pre-wrap break-words text-[13px] leading-[1.65] text-ink">
+              {m.content}
+              {streaming && <span aria-hidden className="stream-caret is-streaming" />}
+            </div>
+          );
+        })}
         <div ref={end} />
       </div>
-      <div className="px-3 pb-2">
-        <div className="flex items-end gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 focus-within:border-zinc-400">
-          <textarea rows={1} value={input} onChange={(e) => setInput(e.target.value)} disabled={disabled}
+      {/* composer — adapted from Beautiful UI ChatComposer (https://www.beautifului.dev/r/chat-composer.json, MIT) */}
+      <div className="shrink-0 px-3 pb-1">
+        <div
+          role="presentation"
+          onClick={() => inputRef.current?.focus()}
+          className="flex cursor-text flex-col gap-2 rounded-control border border-line bg-field p-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.035)] transition-[border-color,box-shadow] duration-150 focus-within:border-line-strong"
+        >
+          <textarea
+            ref={inputRef} rows={1} value={input} disabled={disabled}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } }}
-            placeholder={disabled ? 'Summarize first…' : 'Ask a follow-up…'}
-            className="max-h-24 flex-1 resize-none bg-transparent text-[13px] text-zinc-800 outline-none placeholder:text-zinc-400" />
-          <button onClick={send} disabled={busy || !input.trim()} className="rounded-lg bg-zinc-900 p-1.5 text-white disabled:opacity-30"><Send className="h-3.5 w-3.5" /></button>
+            placeholder={disabled ? '请先等待总结完成…' : '继续提问…（Enter 发送，Shift+Enter 换行）'}
+            aria-label="对话输入框"
+            className="max-h-24 min-h-[18px] resize-none bg-transparent text-[13px] leading-[1.4] text-ink outline-none placeholder:text-ink-3"
+          />
+          <div className="flex items-center justify-end">
+            <button
+              type="button" aria-label="发送" title="发送" disabled={!canSend} onClick={send}
+              className="flex size-7 items-center justify-center rounded-[8px] transition-[background-color,color,transform] duration-200 enabled:active:scale-[0.96]"
+              style={{ background: canSend ? 'var(--ink)' : 'var(--line-strong)', color: canSend ? 'var(--surface)' : 'var(--ink-2)' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>

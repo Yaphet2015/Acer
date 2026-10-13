@@ -7,7 +7,7 @@ export function Overview({ summary }: { summary: Summary }) {
     <div className="space-y-5 px-4 py-4">
       <section>
         <h3 className="mb-2 flex items-center gap-1.5 text-[15px] font-semibold text-zinc-900">
-          <Sparkle className="h-4 w-4 text-violet-500" /> Overview
+          <Sparkle className="h-4 w-4 text-violet-500" /> 概览
         </h3>
         <p className="text-[13.5px] leading-[1.7] text-zinc-700">
           {highlightTerms(summary.overview, summary.keyTerms).map((s, i) =>

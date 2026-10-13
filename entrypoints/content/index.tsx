@@ -15,7 +15,15 @@ export default defineContentScript({
           name: 'open-mind-overlay',
           position: 'overlay',
           zIndex: 2147483646,
-          onMount(container) {
+          anchor: 'html', // outside <body>, so body-level zoom/transform on the host page can't affect us
+          onMount(container, _shadow, host) {
+            // Cancel any CSS zoom inherited from the host page (e.g. html { zoom: .8 }) so the panel is always 380 CSS px.
+            const fixZoom = () => {
+              const z = (host.parentElement as any)?.currentCSSZoom ?? 1;
+              host.style.setProperty('zoom', String(1 / (z || 1)), 'important');
+            };
+            fixZoom();
+            window.addEventListener('resize', fixZoom);
             const root = ReactDOM.createRoot(container);
             root.render(<App />);
             return root;

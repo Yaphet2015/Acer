@@ -14,14 +14,14 @@ const sleep = (ms: number, signal?: AbortSignal) => new Promise<void>((res, rej)
 });
 
 export function buildMockSummary(title: string): Summary {
-  const t = title.trim() || 'this page';
+  const t = title.trim() || '这个页面';
   return {
-    overview: `This is a mock summary of “${t}”. The article introduces a core idea, explains the mechanism behind it with concrete examples, and closes with practical takeaways. Mock mode lets you preview the full Open Mind UI flow without a real language model or API key.`,
-    keyTerms: ['mock summary', 'core idea', 'practical takeaways', 'Mock mode'],
+    overview: `这是「${t}」的模拟总结。文章先提出一个核心观点，再用具体例子解释背后的机制，最后给出可以落地的实践建议。开启 Mock 模式后，不需要真实模型和 API Key 也能完整预览 Open Mind 的界面流程。`,
+    keyTerms: ['模拟总结', '核心观点', '实践建议', 'Mock 模式'],
     sections: [
-      { title: 'Core idea', icon: 'target', bullets: ['States the main problem the page addresses', 'Frames why it matters for the reader', 'Sets up the argument for the rest of the piece'] },
-      { title: 'How it works', icon: 'lightbulb', bullets: ['Breaks the mechanism into a few clear steps', 'Illustrates each step with an example', 'Notes trade-offs and edge cases'] },
-      { title: 'Takeaways', icon: 'check', bullets: ['Summarizes the key lessons in one place', 'Suggests what to try next', 'Points to further reading'] },
+      { title: '核心观点', icon: 'target', bullets: ['点明页面要解决的主要问题', '说明这个问题为什么重要', '为后文的论证做铺垫'] },
+      { title: '工作原理', icon: 'lightbulb', bullets: ['把机制拆成几个清晰的步骤', '每一步都配一个例子', '指出取舍和边界情况'] },
+      { title: '要点回顾', icon: 'check', bullets: ['集中列出关键结论', '建议下一步可以尝试什么', '给出延伸阅读方向'] },
     ],
   };
 }
@@ -32,12 +32,12 @@ export async function mockSummary(title: string, signal?: AbortSignal): Promise<
 }
 
 export function mockReplyText(question: string): string {
-  return `(Mock reply) You asked: “${question.slice(0, 120)}”.\n\nBased on the summary, the page's core idea is explained step by step, and the takeaways section lists what to do next. Turn off Mock mode and add an API key in the options page to get real answers.`;
+  return `（模拟回复）你问的是：「${question.slice(0, 120)}」。\n\n根据总结，这个页面先提出核心观点，再一步步解释原理，最后在「要点回顾」里列出了下一步可以做什么。在设置页关闭 Mock 模式并填写 API Key，就能得到真实回答。`;
 }
 
-/** Stream the mock reply word by word (~30ms per token). */
+/** Stream the mock reply token by token (~30ms each): words for Latin text, 1–2 chars for CJK. */
 export async function mockStream(question: string, onDelta: (t: string) => void, signal?: AbortSignal, tokenMs = 30): Promise<string> {
   const text = mockReplyText(question);
-  for (const tok of text.match(/\S+\s*|\s+/g) ?? []) { await sleep(tokenMs, signal); onDelta(tok); }
+  for (const tok of text.match(/[\u3000-\u9fff\uff00-\uffef]{1,2}|[^\s\u3000-\u9fff\uff00-\uffef]+\s*|\s+/g) ?? []) { await sleep(tokenMs, signal); onDelta(tok); }
   return text;
 }

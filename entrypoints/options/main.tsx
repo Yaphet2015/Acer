@@ -2,6 +2,7 @@ import ReactDOM from 'react-dom/client';
 import { useEffect, useState } from 'react';
 import '@/assets/tailwind.css';
 import { getSettings, saveSettings } from '@/lib/settings';
+import { Button } from '@/components/bui/Button';
 import { DEFAULT_SETTINGS, type Settings } from '@/lib/types';
 
 function Options() {
@@ -30,8 +31,8 @@ function Options() {
           <input type="checkbox" checked={s.mock} onChange={(e) => setS({ ...s, mock: e.target.checked })} />
           <span>Mock mode（不调用模型，返回模拟总结和逐字输出的对话，用于预览界面；未填 API Key 时也会自动使用）</span>
         </label>
-        <button onClick={async () => { await saveSettings(s); setSaved(true); setTimeout(() => setSaved(false), 1500); }}
-          className="rounded-full bg-zinc-900 px-4 py-2 text-[13px] text-white">{saved ? '已保存 ✓' : '保存'}</button>
+        <Button variant="primary" onClick={async () => { await saveSettings(s); setSaved(true); setTimeout(() => setSaved(false), 1500); }}>
+          {saved ? '已保存 ✓' : '保存'}</Button>
       </section>
       <section className="space-y-2 border-t border-zinc-100 pt-6 text-[13px] text-zinc-700">
         <p>当前快捷键：<kbd className="rounded bg-zinc-100 px-1.5 py-0.5">{shortcut}</kbd></p>
