@@ -135,6 +135,7 @@ export function App() {
                   <Refresh className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} /> {loading ? '总结中…' : flash || '重新总结'}
                 </Button>
               </div>
+              <div className="shrink-0 border-b border-zinc-100 py-2"><Segmented value={tab} onChange={setTab} /></div>
               <div className="relative min-h-0 flex-1">
                 {tab === 'overview' ? (
                   <div className="om-scroll h-full overflow-y-auto">
@@ -150,7 +151,6 @@ export function App() {
                   <Chat url={url} messages={chat} setMessages={setChat} disabled={!summary || loading} />
                 )}
               </div>
-              <div className="shrink-0 py-3"><Segmented value={tab} onChange={setTab} /></div>
             </>
           )}
         </motion.div>

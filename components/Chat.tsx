@@ -1,4 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+
+const LINE_PX = 18; // 13px * 1.4 line-height, rounded
+const MAX_LINES = 6;
 import type { ChatMessage } from '@/lib/types';
 
 export function Chat({ url, messages, setMessages, disabled }: {
@@ -26,6 +29,14 @@ export function Chat({ url, messages, setMessages, disabled }: {
     port.postMessage({ url, text });
   };
 
+  // auto-grow 1..6 lines, then scroll
+  useLayoutEffect(() => {
+    const el = inputRef.current; if (!el) return;
+    el.style.height = 'auto';
+    const max = LINE_PX * MAX_LINES;
+    el.style.height = `${Math.min(Math.max(el.scrollHeight, LINE_PX), max)}px`;
+    el.style.overflowY = el.scrollHeight > max ? 'auto' : 'hidden';
+  }, [input]);
   const canSend = !!input.trim() && !busy && !disabled;
   return (
     <div className="flex h-full flex-col">
@@ -60,7 +71,7 @@ export function Chat({ url, messages, setMessages, disabled }: {
             onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } }}
             placeholder={disabled ? '请先等待总结完成…' : '继续提问…（Enter 发送，Shift+Enter 换行）'}
             aria-label="对话输入框"
-            className="max-h-24 min-h-[18px] resize-none bg-transparent text-[13px] leading-[1.4] text-ink outline-none placeholder:text-ink-3"
+            className="om-scroll block w-full resize-none overflow-hidden bg-transparent text-[13px] leading-[18px] text-ink outline-none placeholder:text-ink-3"
           />
           <div className="flex items-center justify-end">
             <button
