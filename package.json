@@ -1,6 +1,23 @@
 {
   "name": "acer",
   "version": "0.1.0",
+  "description": "Acer: open-source Chrome extension for AI page summaries, mind-map outlines and chat, BYOK (OpenAI-compatible).",
+  "keywords": [
+    "chrome-extension",
+    "ai",
+    "summarizer",
+    "ai-summary",
+    "mind-map",
+    "outline",
+    "byok",
+    "llm",
+    "openai-compatible",
+    "wxt",
+    "react",
+    "typescript",
+    "manifest-v3",
+    "open-source"
+  ],
   "private": true,
   "type": "module",
   "license": "MIT",
