@@ -9,7 +9,7 @@ export default defineConfig({
     host_permissions: ['<all_urls>'],
     commands: {
       'toggle-overlay': {
-        suggested_key: { default: 'Alt+Shift+M', mac: 'Alt+Shift+M' },
+        suggested_key: { default: 'Ctrl+E', mac: 'Command+E' },
         description: 'Toggle the Open Mind overlay',
       },
     },

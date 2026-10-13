@@ -37,6 +37,7 @@ export default defineBackground(() => {
         await cache.setSummary(url, { summary, content, title });
         return { summary, chat: [] };
       }
+      if (msg.type === 'getShortcut') return { shortcut: (await chrome.commands.getAll()).find((c) => c.name === 'toggle-overlay')?.shortcut ?? '' };
       if (msg.type === 'listModels') return { models: await listModels(msg.settings) };
       if (msg.type === 'testConnection') return { result: await testConnection(msg.settings) };
       if (msg.type === 'openOptions') { chrome.runtime.openOptionsPage(); return {}; }

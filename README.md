@@ -6,7 +6,9 @@ Open-source browser extension inspired by YouMind's Chrome extension (clean-room
 Open Mind 是一个开源的 Chrome 插件（Manifest V3），复刻 YouMind 插件的「AI 总结 + 大纲树（思维导图）+ 继续对话」体验，后端使用 BYOK（自带 OpenAI 兼容 API Key），数据全部保存在浏览器本地。
 
 ### 功能
-- **快捷键唤起浮层**：默认 `Alt+Shift+M`，可在 `chrome://extensions/shortcuts` 自定义（设置页有直达链接）；点击工具栏图标也可切换。
+- **快捷键唤起浮层**：默认 Mac `⌘E`、Windows/Linux `Ctrl+E`，按一次显示、再按一次隐藏；可在 `chrome://extensions/shortcuts` 自定义（设置页有直达链接）；点击工具栏图标也可切换。
+  - 若 Chrome 因冲突没有分配该快捷键（`chrome://extensions/shortcuts` 里显示为空），内容脚本会在页面内兜底监听 `⌘E` / `Ctrl+E`；兜底只在普通网页生效，`chrome://` 页面和 Chrome 应用商店不可用。注意 Mac 上 `⌘E` 原本是「用所选内容查找」，扩展快捷键会覆盖它；Chrome 只在首次安装时应用建议快捷键，已安装的用户需要手动修改。
+  - 实测（Linux 上的 Chrome 154）：Chrome 不接受 `Ctrl+E` 作为建议快捷键（它是浏览器自带的“聚焦搜索”快捷键，安装后显示为未设置；`Alt+Shift+M`、`Ctrl+Shift+E` 都能正常分配），所以默认走页面内兜底。Mac 上的 `⌘E` 没有实测。
 - **AI 总结 + 大纲树**：用 [defuddle](https://github.com/kepano/defuddle) 提取正文（Markdown），交给 LLM 生成结构化 JSON（Overview、关键词高亮、分节大纲）。
 - **继续对话**：Chat 标签页基于总结和正文继续提问，回复逐字流式输出，对话按页面保存。
 - **可调宽度**：拖动浮层左边缘调整宽度（320–640px，且不超过窗口宽度减 40px），宽度会被记住；双击左边缘恢复默认 380px。

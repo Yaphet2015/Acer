@@ -43,7 +43,7 @@ function Options() {
   };
   useEffect(() => {
     getSettings().then(setS);
-    chrome.commands.getAll((c) => setShortcut(c.find((x) => x.name === 'toggle-overlay')?.shortcut || '未设置'));
+    chrome.commands.getAll((c) => setShortcut(c.find((x) => x.name === 'toggle-overlay')?.shortcut || ''));
   }, []);
   const field = (k: 'baseUrl' | 'apiKey' | 'model', label: string, type = 'text', ph = '') => (
     <label className="block space-y-1">
@@ -91,7 +91,11 @@ function Options() {
           {saved ? '已保存 ✓' : '保存'}</Button>
       </section>
       <section className="space-y-2 border-t border-zinc-100 pt-6 text-[13px] text-zinc-700">
-        <p>当前快捷键：<kbd className="rounded bg-zinc-100 px-1.5 py-0.5">{shortcut}</kbd></p>
+        <p>当前快捷键：<kbd className="rounded bg-zinc-100 px-1.5 py-0.5">{shortcut || (/Mac/.test(navigator.platform) ? '⌘E（页面内兜底）' : 'Ctrl+E（页面内兜底）')}</kbd></p>
+        <p className="text-[12px] text-zinc-500">
+          默认 Mac 为 ⌘E、其他系统为 Ctrl+E，按一次显示、再按一次隐藏。
+          {shortcut ? '' : ' Chrome 没有分配该快捷键（可能与浏览器或其他扩展冲突），目前由页面内脚本兜底处理；在 chrome:// 等页面上不可用。'}
+        </p>
         <button onClick={() => chrome.tabs.create({ url: 'chrome://extensions/shortcuts' })} className="text-accent underline">
           前往 chrome://extensions/shortcuts 自定义快捷键
         </button>

@@ -8,8 +8,10 @@ export default defineContentScript({
   cssInjectionMode: 'ui',
   async main(ctx) {
     let ui: Awaited<ReturnType<typeof createShadowRootUi>> | null = null;
-    chrome.runtime.onMessage.addListener((msg) => {
-      if (msg?.type !== 'toggle') return;
+    let last = 0;
+    const toggle = () => {
+      if (Date.now() - last < 200) return; // de-dupe command + keydown fallback
+      last = Date.now();
       if (!ui) {
         createShadowRootUi(ctx, {
           name: 'open-mind-overlay',
@@ -31,6 +33,21 @@ export default defineContentScript({
           onRemove(root) { root?.unmount(); },
         }).then((u) => { ui = u; u.mount(); });
       } else bus.emit('toggle');
-    });
+    };
+    chrome.runtime.onMessage.addListener((msg) => { if (msg?.type === 'toggle') toggle(); });
+
+    // Fallback: if Chrome didn't assign the Ctrl+E / ⌘E command (conflict, or the user cleared it),
+    // handle the key on the page ourselves. Not used when the user assigned a different shortcut.
+    const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
+    let fallback = false;
+    const refresh = () => chrome.runtime.sendMessage({ type: 'getShortcut' }).then((r) => { fallback = !r?.shortcut; }).catch(() => {});
+    refresh();
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+    window.addEventListener('keydown', (e) => {
+      if (!fallback || e.repeat || e.altKey || e.shiftKey || e.key.toLowerCase() !== 'e') return;
+      if (!(isMac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey)) return;
+      e.preventDefault(); e.stopPropagation();
+      toggle();
+    }, true);
   },
 });
