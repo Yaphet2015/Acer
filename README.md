@@ -25,7 +25,8 @@ npm test         # Vitest 单元测试
 打开插件的「选项」页，填写：
 - **Base URL**：OpenAI 兼容接口地址，例如 `https://api.openai.com/v1`、`https://openrouter.ai/api/v1`，或本地 Ollama `http://localhost:11434/v1`（本地地址可不填 Key）
 - **API Key**
-- **Model**：例如 `gpt-4o-mini`
+- **Model**：填好 Base URL 和 Key 后会自动从 `/models` 拉取模型列表（可搜索，也可直接输入自定义模型名，点「刷新」可重新获取）
+- **测试连接**：向所选模型发一条极短的请求，显示是否成功及耗时
 
 - **Mock mode**：勾选后不调用模型，约 1.2 秒后返回一份模拟总结，对话也会逐字输出模拟回复，方便不填 Key 先体验完整界面。没填 API Key 时也会自动进入 Mock mode（`localhost` 等本地地址除外）。
 

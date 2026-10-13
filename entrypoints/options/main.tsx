@@ -1,15 +1,46 @@
 import ReactDOM from 'react-dom/client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import '@/assets/tailwind.css';
 import { getSettings, saveSettings } from '@/lib/settings';
 import { Button } from '@/components/bui/Button';
 import { useMock } from '@/lib/mock';
+import { ModelCombobox } from '@/components/ModelCombobox';
+import type { TestResult } from '@/lib/models';
 import { DEFAULT_SETTINGS, type Settings } from '@/lib/types';
 
 function Options() {
   const [s, setS] = useState<Settings>(DEFAULT_SETTINGS);
   const [shortcut, setShortcut] = useState('');
   const [saved, setSaved] = useState(false);
+  const [models, setModels] = useState<string[]>([]);
+  const [mLoading, setMLoading] = useState(false);
+  const [mError, setMError] = useState('');
+  const [testing, setTesting] = useState(false);
+  const [test, setTest] = useState<TestResult | null>(null);
+  const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/.test(s.baseUrl);
+  const canFetch = /^https?:\/\//.test(s.baseUrl) && (!!s.apiKey || isLocal);
+  const reqId = useRef(0);
+  const fetchModels = async () => {
+    if (!canFetch) return;
+    const id = ++reqId.current;
+    setMLoading(true); setMError('');
+    const r = await chrome.runtime.sendMessage({ type: 'listModels', settings: { baseUrl: s.baseUrl, apiKey: s.apiKey } });
+    if (id !== reqId.current) return; // stale
+    setMLoading(false);
+    if (r?.ok) setModels(r.models); else { setModels([]); setMError(r?.error ?? '未知错误'); }
+  };
+  useEffect(() => { // debounced auto-fetch when Base URL / key change
+    if (!canFetch) { setModels([]); setMError(''); return; }
+    setMLoading(true); setMError(''); reqId.current++; // show loading immediately; drop in-flight results
+    const t = setTimeout(fetchModels, 600);
+    return () => clearTimeout(t);
+  }, [s.baseUrl, s.apiKey]);
+  const runTest = async () => {
+    setTesting(true); setTest(null);
+    const r = await chrome.runtime.sendMessage({ type: 'testConnection', settings: s });
+    setTesting(false);
+    setTest(r?.ok ? r.result : { ok: false, ms: 0, error: r?.error ?? '未知错误' });
+  };
   useEffect(() => {
     getSettings().then(setS);
     chrome.commands.getAll((c) => setShortcut(c.find((x) => x.name === 'toggle-overlay')?.shortcut || '未设置'));
@@ -27,7 +58,18 @@ function Options() {
       <section className="space-y-4">
         {field('baseUrl', 'Base URL（OpenAI 兼容）', 'text', 'https://api.openai.com/v1')}
         {field('apiKey', 'API Key', 'password', 'sk-...')}
-        {field('model', 'Model', 'text', 'gpt-4o-mini')}
+        <div className="space-y-1">
+          <span className="text-[13px] font-medium text-zinc-700">Model</span>
+          <ModelCombobox value={s.model} onChange={(model) => setS({ ...s, model })} models={models} loading={mLoading} error={mError} onRefresh={fetchModels} canFetch={canFetch} />
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button variant="secondary" size="sm" onClick={runTest} disabled={testing || !s.model || !canFetch}>{testing ? '测试中…' : '测试连接'}</Button>
+          <span data-test-result className="text-[13px]">
+            {testing && <span className="text-zinc-500">正在向 {s.model} 发送测试请求…</span>}
+            {test?.ok && <span className="text-green-700">✓ 连接成功 · {test.ms} ms{test.reply ? ` · 回复：${test.reply}` : ''}</span>}
+            {test && !test.ok && <span className="text-red-600">✗ 连接失败：{test.error}</span>}
+          </span>
+        </div>
         {(() => {
           const auto = !s.mock && useMock(s); // no key (and not a local server) → mock is used automatically
           return (

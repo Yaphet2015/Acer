@@ -1,5 +1,6 @@
 import { chromeKV, createCache } from '@/lib/cache';
 import { runTurn } from '@/lib/llm';
+import { listModels, testConnection } from '@/lib/models';
 import { mockStream, mockSummary, useMock } from '@/lib/mock';
 import { parseSummary } from '@/lib/parse';
 import { chatSystem, SUMMARY_INSTRUCTIONS, summaryInput } from '@/lib/prompts';
@@ -36,6 +37,8 @@ export default defineBackground(() => {
         await cache.setSummary(url, { summary, content, title });
         return { summary, chat: [] };
       }
+      if (msg.type === 'listModels') return { models: await listModels(msg.settings) };
+      if (msg.type === 'testConnection') return { result: await testConnection(msg.settings) };
       if (msg.type === 'openOptions') { chrome.runtime.openOptionsPage(); return {}; }
       if (msg.type === 'clearChat') { await cache.setChat(msg.url, []); return {}; }
     })().then((r) => reply({ ok: true, ...r }), (e) => reply({ ok: false, error: String(e?.message ?? e) }));
