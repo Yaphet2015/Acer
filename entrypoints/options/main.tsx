@@ -12,7 +12,7 @@ function Options() {
     getSettings().then(setS);
     chrome.commands.getAll((c) => setShortcut(c.find((x) => x.name === 'toggle-overlay')?.shortcut || '未设置'));
   }, []);
-  const field = (k: keyof Settings, label: string, type = 'text', ph = '') => (
+  const field = (k: 'baseUrl' | 'apiKey' | 'model', label: string, type = 'text', ph = '') => (
     <label className="block space-y-1">
       <span className="text-[13px] font-medium text-zinc-700">{label}</span>
       <input type={type} value={s[k]} placeholder={ph} onChange={(e) => setS({ ...s, [k]: e.target.value })}
@@ -26,6 +26,10 @@ function Options() {
         {field('baseUrl', 'Base URL（OpenAI 兼容）', 'text', 'https://api.openai.com/v1')}
         {field('apiKey', 'API Key', 'password', 'sk-...')}
         {field('model', 'Model', 'text', 'gpt-4o-mini')}
+        <label className="flex items-center gap-2 text-[13px] text-zinc-700">
+          <input type="checkbox" checked={s.mock} onChange={(e) => setS({ ...s, mock: e.target.checked })} />
+          <span>Mock mode（不调用模型，返回模拟总结和逐字输出的对话，用于预览界面；未填 API Key 时也会自动使用）</span>
+        </label>
         <button onClick={async () => { await saveSettings(s); setSaved(true); setTimeout(() => setSaved(false), 1500); }}
           className="rounded-full bg-zinc-900 px-4 py-2 text-[13px] text-white">{saved ? '已保存 ✓' : '保存'}</button>
       </section>

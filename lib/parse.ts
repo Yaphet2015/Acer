@@ -1,4 +1,11 @@
+import { z } from 'zod';
 import { ICON_TYPES, type IconType, type Summary } from './types';
+
+export const SummarySchema = z.object({
+  overview: z.string().min(1),
+  keyTerms: z.array(z.string()),
+  sections: z.array(z.object({ title: z.string().min(1), icon: z.enum(ICON_TYPES as [IconType, ...IconType[]]), bullets: z.array(z.string()) })),
+});
 
 /** Extract and validate the summary JSON returned by the LLM (tolerates code fences / prose). */
 export function parseSummary(text: string): Summary {
@@ -19,7 +26,7 @@ export function parseSummary(text: string): Summary {
       icon: (ICON_TYPES.includes(x.icon) ? x.icon : 'list') as IconType,
       bullets: (Array.isArray(x.bullets) ? x.bullets : []).filter((b: unknown) => typeof b === 'string').map((b: string) => b.trim()),
     }));
-  return { overview: raw.overview.trim(), keyTerms, sections };
+  return SummarySchema.parse({ overview: raw.overview.trim(), keyTerms, sections });
 }
 
 export type Segment = { text: string; highlight: boolean };

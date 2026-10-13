@@ -1,7 +1,8 @@
 import { chromeKV, createCache } from '@/lib/cache';
-import { complete, stream } from '@/lib/llm';
+import { runTurn } from '@/lib/llm';
+import { mockStream, mockSummary, useMock } from '@/lib/mock';
 import { parseSummary } from '@/lib/parse';
-import { chatSystem, summaryMessages } from '@/lib/prompts';
+import { chatSystem, SUMMARY_INSTRUCTIONS, summaryInput } from '@/lib/prompts';
 import { getSettings } from '@/lib/settings';
 import type { ChatMessage } from '@/lib/types';
 
@@ -28,8 +29,9 @@ export default defineBackground(() => {
         const { url, title, content, force } = msg;
         if (!force) { const c = await cache.getSummary(url); if (c) return { summary: c.summary, chat: await cache.getChat(url) }; }
         const s = await getSettings();
-        if (!s.apiKey && !/localhost|127\.0\.0\.1/.test(s.baseUrl)) throw new Error('NO_KEY');
-        const summary = parseSummary(await complete(s, summaryMessages(title, url, content)));
+        const summary = useMock(s)
+          ? await mockSummary(title)
+          : parseSummary(await runTurn(s, SUMMARY_INSTRUCTIONS, [], summaryInput(title, url, content)));
         await cache.clearSummary(url);
         await cache.setSummary(url, { summary, content, title });
         return { summary, chat: [] };
@@ -48,11 +50,13 @@ export default defineBackground(() => {
       try {
         const c = await cache.getSummary(url);
         if (!c) throw new Error('Summary expired, please re-summarize.');
-        const history: ChatMessage[] = [...(await cache.getChat(url)), { role: 'user', content: text }];
-        let out = '';
-        await stream(await getSettings(), [{ role: 'system', content: chatSystem(c.title, c.summary, c.content) }, ...history],
-          (d) => { out += d; port.postMessage({ delta: d }); }, ac.signal);
-        await cache.setChat(url, [...history, { role: 'assistant', content: out }]);
+        const prior: ChatMessage[] = await cache.getChat(url);
+        const s = await getSettings();
+        const onDelta = (d: string) => port.postMessage({ delta: d });
+        const out = useMock(s)
+          ? await mockStream(text, onDelta, ac.signal)
+          : await runTurn(s, chatSystem(c.title, c.summary, c.content), prior, text, onDelta, ac.signal);
+        await cache.setChat(url, [...prior, { role: 'user', content: text }, { role: 'assistant', content: out }]);
         port.postMessage({ done: true });
       } catch (e: any) {
         try { port.postMessage({ error: String(e?.message ?? e) }); } catch {}

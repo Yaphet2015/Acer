@@ -26,7 +26,9 @@ npm test         # Vitest 单元测试
 - **API Key**
 - **Model**：例如 `gpt-4o-mini`
 
-所有请求都经后台 Service Worker 直接发往你配置的接口，不经过任何第三方服务器。
+- **Mock mode**：勾选后不调用模型，约 1.2 秒后返回一份模拟总结，对话也会逐字输出模拟回复，方便不填 Key 先体验完整界面。没填 API Key 时也会自动进入 Mock mode（`localhost` 等本地地址除外）。
+
+所有请求都经后台 Service Worker 直接发往你配置的接口，不经过任何第三方服务器。模型调用基于 [pi durable](https://github.com/earendil-works/pi)（`@earendil-works/pi-durable` + `@earendil-works/pi-ai`），走 OpenAI 兼容的 `/chat/completions` 接口。
 
 ### 技术栈
-WXT · React · TypeScript · Tailwind CSS · Framer Motion · Shadow DOM 渲染浮层
+WXT · React · TypeScript · Tailwind CSS · Framer Motion · pi durable (pi-ai) · zod · Shadow DOM 渲染浮层
