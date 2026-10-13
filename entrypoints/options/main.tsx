@@ -5,6 +5,7 @@ import { getSettings, saveSettings } from '@/lib/settings';
 import { Button } from '@/components/bui/Button';
 import { useMock } from '@/lib/mock';
 import { ModelCombobox } from '@/components/ModelCombobox';
+import { SkillsManager } from '@/components/SkillsManager';
 import type { TestResult } from '@/lib/models';
 import { DEFAULT_SETTINGS, type Settings } from '@/lib/types';
 
@@ -90,6 +91,7 @@ function Options() {
         <Button variant="primary" onClick={async () => { await saveSettings(s); setSaved(true); setTimeout(() => setSaved(false), 1500); }}>
           {saved ? '已保存 ✓' : '保存'}</Button>
       </section>
+      <SkillsManager />
       <section className="space-y-2 border-t border-zinc-100 pt-6 text-[13px] text-zinc-700">
         <p>当前快捷键：<kbd className="rounded bg-zinc-100 px-1.5 py-0.5">{shortcut || (/Mac/.test(navigator.platform) ? '⌘E（页面内兜底）' : 'Ctrl+E（页面内兜底）')}</kbd></p>
         <p className="text-[12px] text-zinc-500">

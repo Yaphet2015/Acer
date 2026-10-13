@@ -23,3 +23,5 @@ export const BulletIcons: Record<IconType, (p: P) => React.JSX.Element> = {
   warning: S(<><path d="M12 3l10 18H2z" /><path d="M12 10v4M12 17h.01" /></>),
   check: S(<><circle cx="12" cy="12" r="9" /><path d="M8 12l3 3 5-6" /></>),
 };
+
+export const Fork = S(<><circle cx="6" cy="5" r="2" /><circle cx="18" cy="5" r="2" /><circle cx="12" cy="19" r="2" /><path d="M6 7v2a3 3 0 003 3h6a3 3 0 003-3V7M12 12v5" /></>);

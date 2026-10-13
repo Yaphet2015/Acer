@@ -18,3 +18,4 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
 :host, :root, * { -webkit-tap-highlight-color: transparent; }
 *:focus, *:focus-visible, *:focus-within { outline: none !important; }
 button::-moz-focus-inner { border: 0; }
+.om-noscrollbar { scrollbar-width: none; } .om-noscrollbar::-webkit-scrollbar { display: none; }
