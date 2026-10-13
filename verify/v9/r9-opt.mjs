@@ -1,6 +1,6 @@
 import http from 'node:http';
 import puppeteer from 'puppeteer-core';
-const OUT='/workspace/open-mind-extension/verify/v9/opt';
+const OUT=new URL('./opt', import.meta.url).pathname;
 const MODELS=['gpt-4o','gpt-4o-mini','gpt-4.1','gpt-4.1-mini','o3-mini','deepseek-chat','qwen-plus','llama-3.1-8b'];
 const srv = http.createServer((req,res)=>{ const ok=req.headers.authorization==='Bearer sk-good';
   if (req.url==='/v1/models'){ if(!ok){res.writeHead(401);return res.end('{"error":{"message":"invalid api key"}}');} setTimeout(()=>{res.writeHead(200,{'content-type':'application/json'});res.end(JSON.stringify({data:MODELS.map(id=>({id}))}));},400); return; }

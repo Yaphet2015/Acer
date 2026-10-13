@@ -1,7 +1,7 @@
 import http from 'node:http';
 import puppeteer from 'puppeteer-core';
-const OUT='/workspace/open-mind-extension/verify/v9/v3';
-const html = `<html><head><title>示例文章：如何设计 AI 原生界面</title></head><body><article><h1>如何设计 AI 原生界面</h1><p>${'这是一段示例正文，用来测试 Open Mind 的总结功能。'.repeat(40)}</p></article></body></html>`;
+const OUT=new URL('./v3', import.meta.url).pathname;
+const html = `<html><head><title>示例文章：如何设计 AI 原生界面</title></head><body><article><h1>如何设计 AI 原生界面</h1><p>${'这是一段示例正文，用来测试 Acer 的总结功能。'.repeat(40)}</p></article></body></html>`;
 const srv = http.createServer((q,r)=>{r.writeHead(200,{'content-type':'text/html; charset=utf-8'});r.end(html)}); await new Promise(r=>srv.listen(0,'127.0.0.1',r));
 const br = await puppeteer.launch({ executablePath:'/usr/bin/google-chrome', headless:true, pipe:true, enableExtensions:true, args:['--no-sandbox'], defaultViewport:{width:1280,height:800} });
 await br.installExtension('/tmp/swtest/ext');
@@ -10,7 +10,7 @@ const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
 const page = await br.newPage(); await page.goto(`http://127.0.0.1:${srv.address().port}/`); await sleep(400);
 await sw.evaluate(async()=>{ await chrome.storage.local.clear(); await chrome.storage.local.set({settings:{baseUrl:'https://api.openai.com/v1',apiKey:'',model:'gpt-4o-mini',mock:false}}); const [t]=await chrome.tabs.query({active:true}); await chrome.tabs.sendMessage(t.id,{type:'toggle'}); });
 await sleep(2000);
-const S='document.querySelector("open-mind-overlay").shadowRoot'; const ev=(c)=>page.evaluate(new Function(c));
+const S='document.querySelector("acer-overlay").shadowRoot'; const ev=(c)=>page.evaluate(new Function(c));
 console.log('order:', await ev(`const p=${S}.querySelector('.fixed'); const seg=[...p.querySelectorAll('button')].find(b=>b.innerText.includes('对话')).getBoundingClientRect().top; const sub=p.querySelector('button[title^="忽略缓存"]').getBoundingClientRect().top; return {subHeaderTop:Math.round(sub), segTop:Math.round(seg), panelTop:Math.round(p.getBoundingClientRect().top)}`));
 await page.screenshot({path:`${OUT}/overview.png`});
 await ev(`[...${S}.querySelectorAll('button')].find(b=>b.innerText.includes('对话')).click()`); await sleep(400);

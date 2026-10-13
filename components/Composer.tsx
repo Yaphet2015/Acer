@@ -53,7 +53,7 @@ export function Composer({ value, onChange, onSubmit, disabled, canSend, status,
             }}
             placeholder={disabled ? '请先等待总结完成…' : '继续提问…（/ 查看命令，Enter 发送，Shift+Enter 换行）'}
             aria-label="对话输入框"
-            className="om-scroll block w-full resize-none overflow-hidden bg-transparent text-[13px] leading-[18px] text-ink outline-none placeholder:text-ink-3"
+            className="acer-scroll block w-full resize-none overflow-hidden bg-transparent text-[13px] leading-[18px] text-ink outline-none placeholder:text-ink-3"
           />
           <div className="flex items-center justify-between">
             <span className="text-[11px] text-ink-3">{status}</span>

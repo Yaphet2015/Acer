@@ -25,7 +25,7 @@ export function SkillsRow({ skills, onRun, disabled }: { skills: Skill[]; onRun:
   return (
     <div
       ref={ref} data-skills-row onScroll={update}
-      className="om-noscrollbar flex gap-1.5 overflow-x-auto px-3 pb-1.5 pt-0.5"
+      className="acer-noscrollbar flex gap-1.5 overflow-x-auto px-3 pb-1.5 pt-0.5"
       style={{ maskImage: mask, WebkitMaskImage: mask }}
     >
       {skills.map((s) => (

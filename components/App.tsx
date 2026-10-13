@@ -100,7 +100,7 @@ export function App() {
             <>
               <div className="relative min-h-0 flex-1">
                 {tab === 'overview' ? (
-                  <div className="om-scroll h-full overflow-y-auto">
+                  <div className="acer-scroll h-full overflow-y-auto">
                     {loading && <><div className="px-4 pt-4"><LoadingState label="正在总结" /></div><Skeleton /></>}
                     {!loading && error && <ErrorView error={error} retry={() => run(true)} />}
                     {!loading && summary && (
