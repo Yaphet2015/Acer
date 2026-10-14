@@ -2,6 +2,8 @@ name: Check Chrome Web Store credentials
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ci/cws-check]
 
 permissions:
   contents: read
