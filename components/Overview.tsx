@@ -1,7 +1,10 @@
 import { highlightTerms } from '@/lib/parse';
 import { useT } from './i18n';
 import type { Summary } from '@/lib/types';
-import { BulletIcons, Sparkle } from './Icons';
+import { Sparkle } from './Icons';
+
+/** One color per top-level branch; children inherit it. */
+const BRANCH_COLORS = ['#1677ff', '#13a8a8', '#722ed1', '#fa8c16', '#eb2f96', '#52c41a'];
 
 export function Overview({ summary }: { summary: Summary }) {
   const t = useT();
@@ -18,20 +21,27 @@ export function Overview({ summary }: { summary: Summary }) {
         </p>
       </section>
       {summary.sections.map((sec, i) => {
-        const Icon = BulletIcons[sec.icon];
+        const c = BRANCH_COLORS[i % BRANCH_COLORS.length];
         return (
-          <section key={i}>
-            <h4 className="mb-2 text-[14px] font-bold text-zinc-900">{sec.title}</h4>
-            <ul className="relative">
-              {sec.bullets.map((b, j) => (
-                <li key={j} className="relative flex gap-2.5 pb-3 last:pb-0">
-                  {j < sec.bullets.length - 1 && <span className="absolute left-[11px] top-6 bottom-0 w-px bg-zinc-200" />}
-                  <span className="z-[1] flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-zinc-50 text-zinc-600 ring-1 ring-zinc-200">
-                    <Icon className="h-3.5 w-3.5" />
-                  </span>
-                  <span className="pt-0.5 text-[13px] leading-[1.6] text-zinc-700">{b}</span>
-                </li>
-              ))}
+          <section key={i} data-branch={i}>
+            <h4 className="mb-1.5 flex items-center gap-2 text-[14px] font-bold text-zinc-900">
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: c, boxShadow: `0 0 0 3px ${c}26` }} />
+              {sec.title}
+            </h4>
+            <ul className="relative ml-[4.5px]">
+              {sec.bullets.map((b, j) => {
+                const last = j === sec.bullets.length - 1;
+                return (
+                  <li key={j} className="relative pb-2 pl-[30px] last:pb-0">
+                    {/* trunk continues past this item */}
+                    {!last && <span className="absolute bottom-0 left-0 top-0 w-[1.5px]" style={{ background: c, opacity: 0.55 }} />}
+                    {/* curved elbow from the trunk into this node */}
+                    <span className="absolute left-0 top-0 h-[13px] w-4 rounded-bl-[10px] border-b-[1.5px] border-l-[1.5px]" style={{ borderColor: c, opacity: 0.55 }} />
+                    <span className="absolute left-[15px] top-[10px] h-[7px] w-[7px] rounded-full" style={{ background: c }} />
+                    <span className="block text-[13px] leading-[1.6] text-zinc-700">{b}</span>
+                  </li>
+                );
+              })}
             </ul>
           </section>
         );
