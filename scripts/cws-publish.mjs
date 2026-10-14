@@ -55,10 +55,19 @@ async function main() {
   const zip = process.argv[2];
   const extensionId = env('CWS_EXTENSION_ID');
   const publisherId = env('CWS_PUBLISHER_ID');
-  if (!zip) fail('Usage: cws-publish.mjs <zip>');
+  if (!zip) fail('Usage: cws-publish.mjs <zip> | --check');
   if (!extensionId || !publisherId) fail('CWS_EXTENSION_ID and CWS_PUBLISHER_ID are required.');
   const item = `publishers/${publisherId}/items/${extensionId}`;
   const token = await getToken();
+
+  // Read-only credential check: fetch the item status and exit.
+  if (zip === '--check') {
+    const st = await call(token, 'GET', `${API}/v2/${item}:fetchStatus`);
+    if (!st.ok) fail(`fetchStatus failed (${st.status}): ${st.text}`);
+    console.log('Credentials OK. Item status:');
+    console.log(JSON.stringify(st.json, null, 2));
+    return;
+  }
 
   // 1. Upload
   console.log(`Uploading ${zip} …`);
