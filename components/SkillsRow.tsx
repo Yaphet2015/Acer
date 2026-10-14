@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { useT } from './i18n';
 import type { Skill } from '@/lib/skills';
 
 /** Single-row, horizontally scrollable Skill pills: hidden scrollbar, wheel → horizontal, fade edges. */
 export function SkillsRow({ skills, onRun, disabled }: { skills: Skill[]; onRun: (s: Skill) => void; disabled: boolean }) {
+  const t = useT();
   const ref = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState({ left: false, right: false });
   const update = () => {
@@ -30,7 +32,7 @@ export function SkillsRow({ skills, onRun, disabled }: { skills: Skill[]; onRun:
     >
       {skills.map((s) => (
         <button
-          key={s.id} type="button" disabled={disabled} title={`运行 Skill：${s.name}（用输入框里的文字作为输入）`}
+          key={s.id} type="button" disabled={disabled} title={t.runSkill(s.name)}
           onMouseDown={(e) => e.preventDefault() /* keep page selection + composer focus */}
           onClick={() => onRun(s)}
           className="inline-flex h-[26px] shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-surface px-2.5 text-[12px] text-ink shadow-btn transition-[background-color,transform,color] duration-150 hover:bg-accent-tint hover:text-accent-ink active:scale-[0.96] disabled:opacity-50"

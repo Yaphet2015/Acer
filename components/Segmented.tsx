@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
+import { useT } from './i18n';
 export type Tab = 'overview' | 'chat';
-const TABS: { id: Tab; label: string }[] = [{ id: 'overview', label: '概览' }, { id: 'chat', label: '对话' }];
 export function Segmented({ value, onChange, className = 'mx-auto' }: { value: Tab; onChange: (t: Tab) => void; className?: string }) {
+  const m = useT();
+  const TABS: { id: Tab; label: string }[] = [{ id: 'overview', label: m.tabOverview }, { id: 'chat', label: m.tabChat }];
   return (
     <div className={`flex w-fit shrink-0 rounded-full bg-zinc-100 p-0.5 ${className}`} onClick={(e) => e.stopPropagation()}>
       {TABS.map((t) => (

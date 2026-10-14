@@ -19,12 +19,12 @@ describe('renderTemplate', () => {
 
 describe('Skill store CRUD', () => {
   it('starts with built-in defaults', async () => {
-    const s = createSkillStore(memKV(), gen);
+    const s = createSkillStore(memKV(), 'zh-CN', gen);
     expect((await s.list()).map((x) => x.name)).toEqual(DEFAULT_SKILLS.map((x) => x.name));
     expect((await s.list()).map((x) => x.name)).toContain('翻译成英文');
   });
   it('add / update / move / remove, with validation', async () => {
-    const s = createSkillStore(memKV(), gen);
+    const s = createSkillStore(memKV(), 'zh-CN', gen);
     const a = await s.add({ name: ' 改写 ', icon: '✍️', template: '改写：{{input}}' });
     expect(a.name).toBe('改写');
     await expect(s.add({ name: '', template: 'x' })).rejects.toThrow(/名称/);
@@ -51,7 +51,7 @@ describe('recent ordering', () => {
   it('orderByRecent puts used skills first, rest in list order, drops unknown ids', async () => {
     const list = [{ id: 'a', name: 'A', template: 't' }, { id: 'b', name: 'B', template: 't' }, { id: 'c', name: 'C', template: 't' }];
     expect(orderByRecent(list, ['c', 'zzz', 'a']).map((x) => x.id)).toEqual(['c', 'a', 'b']);
-    const s = createSkillStore(memKV(), gen);
+    const s = createSkillStore(memKV(), 'zh-CN', gen);
     const ids = (await s.list()).map((x) => x.id);
     await s.markUsed(ids[2]!); await s.markUsed(ids[0]!);
     expect((await s.ordered()).map((x) => x.id).slice(0, 3)).toEqual([ids[0], ids[2], ids[1]]);

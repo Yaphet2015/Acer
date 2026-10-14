@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import '@/assets/tailwind.css';
 import { App } from '@/components/App';
+import { LangProvider } from '@/components/i18n';
 import { bus } from '@/components/bus';
 import { rpc, TOGGLE } from '@/lib/messages';
 
@@ -28,7 +29,7 @@ export default defineContentScript({
             fixZoom();
             window.addEventListener('resize', fixZoom);
             const root = ReactDOM.createRoot(container);
-            root.render(<App />);
+            root.render(<LangProvider><App /></LangProvider>);
             return root;
           },
           onRemove(root) { root?.unmount(); },

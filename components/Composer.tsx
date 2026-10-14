@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useState, type RefObject } from 'react';
+import { useT } from './i18n';
 import { SlashMenu, type SlashItem } from './SlashMenu';
 
 const LINE_PX = 18; // 13px * 1.4 line-height, rounded
@@ -14,6 +15,7 @@ interface Props {
 
 /** Auto-growing composer (1–6 lines, then scroll) with slash-menu keyboard handling. */
 export function Composer({ value, onChange, onSubmit, disabled, canSend, status, slashItems, onPickSlash, inputRef }: Props) {
+  const t = useT();
   const [slashActive, setSlashActive] = useState(0);
   const showSlash = slashItems.length > 0;
   useEffect(() => setSlashActive(0), [value]);
@@ -51,14 +53,14 @@ export function Composer({ value, onChange, onSubmit, disabled, canSend, status,
               }
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSubmit(); }
             }}
-            placeholder={disabled ? '请先等待总结完成…' : '继续提问…（/ 查看命令，Enter 发送，Shift+Enter 换行）'}
-            aria-label="对话输入框"
+            placeholder={disabled ? t.placeholderWait : t.placeholder}
+            aria-label={t.inputLabel}
             className="acer-scroll block w-full resize-none overflow-hidden bg-transparent text-[13px] leading-[18px] text-ink outline-none placeholder:text-ink-3"
           />
           <div className="flex items-center justify-between">
             <span className="text-[11px] text-ink-3">{status}</span>
             <button
-              type="button" aria-label="发送" title="发送" disabled={!canSend} onClick={onSubmit}
+              type="button" aria-label={t.send} title={t.send} disabled={!canSend} onClick={onSubmit}
               className="flex size-7 items-center justify-center rounded-[8px] transition-[background-color,color,transform] duration-200 enabled:active:scale-[0.96]"
               style={{ background: canSend ? 'var(--accent)' : 'var(--line-strong)', color: canSend ? '#fff' : 'var(--ink-2)' }}
             >
