@@ -6,7 +6,7 @@ export function SessionChips({ state, onSwitch, onClose, onFork, disabled }: {
   state: SessionsState; onSwitch: (id: string) => void; onClose: (id: string) => void; onFork: () => void; disabled: boolean;
 }) {
   return (
-    <div data-session-chips className="om-noscrollbar flex shrink-0 items-center gap-1 overflow-x-auto border-b border-zinc-100 px-3 py-1.5">
+    <div data-session-chips className="acer-noscrollbar flex shrink-0 items-center gap-1 overflow-x-auto border-b border-zinc-100 px-3 py-1.5">
       {state.sessions.map((s) => {
         const active = s.id === state.active;
         return (

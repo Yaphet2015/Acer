@@ -57,7 +57,7 @@ function Options() {
   );
   return (
     <div className="mx-auto max-w-lg space-y-6 p-10 font-sans text-zinc-900">
-      <h1 className="text-xl font-semibold">Open Mind 设置</h1>
+      <h1 className="text-xl font-semibold">Acer 设置</h1>
       <section className="space-y-4">
         {field('baseUrl', 'Base URL（OpenAI 兼容）', 'text', 'https://api.openai.com/v1')}
         {field('apiKey', 'API Key', 'password', 'sk-...')}

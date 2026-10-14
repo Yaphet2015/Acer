@@ -17,7 +17,7 @@ const sleep = (ms: number, signal?: AbortSignal) => new Promise<void>((res, rej)
 export function buildMockSummary(title: string): Summary {
   const t = title.trim() || '这个页面';
   return {
-    overview: `这是「${t}」的模拟总结。文章先提出一个核心观点，再用具体例子解释背后的机制，最后给出可以落地的实践建议。开启 Mock 模式后，不需要真实模型和 API Key 也能完整预览 Open Mind 的界面流程。`,
+    overview: `这是「${t}」的模拟总结。文章先提出一个核心观点，再用具体例子解释背后的机制，最后给出可以落地的实践建议。开启 Mock 模式后，不需要真实模型和 API Key 也能完整预览 Acer 的界面流程。`,
     keyTerms: ['模拟总结', '核心观点', '实践建议', 'Mock 模式'],
     sections: [
       { title: '核心观点', icon: 'target', bullets: ['点明页面要解决的主要问题', '说明这个问题为什么重要', '为后文的论证做铺垫'] },

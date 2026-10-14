@@ -15,7 +15,7 @@ export default defineContentScript({
       last = Date.now();
       if (!ui) {
         createShadowRootUi(ctx, {
-          name: 'open-mind-overlay',
+          name: 'acer-overlay',
           position: 'overlay',
           zIndex: 2147483646,
           anchor: 'html', // outside <body>, so body-level zoom/transform on the host page can't affect us
