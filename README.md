@@ -11,7 +11,7 @@
 
 English · [简体中文](./README.zh-CN.md)
 
-<img src="docs/screenshots/overview.png" alt="Representer showing an AI summary and section outline next to a web page" width="820" />
+<img src="docs/screenshots/overview-v2.png" alt="Representer showing an AI summary and section outline next to a web page" width="820" />
 
 </div>
 

@@ -11,7 +11,7 @@
 
 [English](./README.md) · 简体中文
 
-<img src="docs/screenshots/zh-CN/overview.png" alt="Representer 在网页右侧显示 AI 总结和分节要点" width="820" />
+<img src="docs/screenshots/zh-CN/overview-v2.png" alt="Representer 在网页右侧显示 AI 总结和分节要点" width="820" />
 
 </div>
 
