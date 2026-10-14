@@ -55,7 +55,7 @@ export function Composer({ value, onChange, onSubmit, disabled, canSend, status,
             }}
             placeholder={disabled ? t.placeholderWait : t.placeholder}
             aria-label={t.inputLabel}
-            className="acer-scroll block w-full resize-none overflow-hidden bg-transparent text-[13px] leading-[18px] text-ink outline-none placeholder:text-ink-3"
+            className="rp-scroll block w-full resize-none overflow-hidden bg-transparent text-[13px] leading-[18px] text-ink outline-none placeholder:text-ink-3"
           />
           <div className="flex items-center justify-between">
             <span className="text-[11px] text-ink-3">{status}</span>

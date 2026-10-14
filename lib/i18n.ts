@@ -29,7 +29,7 @@ const zh = {
   mainSessionTitle: '主线会话', forkedFrom: (name: string) => `从「${name}」分叉`,
   closeSession: (name: string) => `关闭${name}`, forkTitle: '分叉出一个支线会话（也可以输入 /side）', newSide: '新支线',
   // options
-  settingsTitle: 'Acer 设置', language: '界面语言', langAuto: '自动（跟随浏览器）',
+  settingsTitle: 'Representer 设置', language: '界面语言', langAuto: '自动（跟随浏览器）',
   baseUrl: 'Base URL（OpenAI 兼容）', apiKey: 'API Key', model: 'Model',
   unknownError: '未知错误', testing: '测试中…', testConnection: '测试连接',
   testSending: (m: string) => `正在向 ${m} 发送测试请求…`,
@@ -58,7 +58,7 @@ const zh = {
   errName: '请填写名称', errNameLong: '名称最多 24 个字', errTemplate: '请填写提示词模板', errNoSkill: 'Skill 不存在',
   // mock
   mockPage: '这个页面',
-  mockOverview: (t: string) => `这是「${t}」的模拟总结。文章先提出一个核心观点，再用具体例子解释背后的机制，最后给出可以落地的实践建议。开启 Mock 模式后，不需要真实模型和 API Key 也能完整预览 Acer 的界面流程。`,
+  mockOverview: (t: string) => `这是「${t}」的模拟总结。文章先提出一个核心观点，再用具体例子解释背后的机制，最后给出可以落地的实践建议。开启 Mock 模式后，不需要真实模型和 API Key 也能完整预览 Representer 的界面流程。`,
   mockTerms: ['模拟总结', '核心观点', '实践建议', 'Mock 模式'],
   mockSections: [
     ['核心观点', ['点明页面要解决的主要问题', '说明这个问题为什么重要', '为后文的论证做铺垫']],
@@ -88,7 +88,7 @@ const en: Messages = {
   mainSession: 'Main', sideSession: (n) => `Side ${n}`,
   mainSessionTitle: 'Main chat', forkedFrom: (name) => `Forked from “${name}”`,
   closeSession: (name) => `Close ${name}`, forkTitle: 'Fork a side chat (or type /side)', newSide: 'New side',
-  settingsTitle: 'Acer Settings', language: 'Language', langAuto: 'Auto (follow browser)',
+  settingsTitle: 'Representer Settings', language: 'Language', langAuto: 'Auto (follow browser)',
   baseUrl: 'Base URL (OpenAI-compatible)', apiKey: 'API Key', model: 'Model',
   unknownError: 'Unknown error', testing: 'Testing…', testConnection: 'Test connection',
   testSending: (m) => `Sending a test request to ${m}…`,
@@ -115,7 +115,7 @@ const en: Messages = {
   confirmDelete: 'Delete?', delete: 'Delete', moveUp: 'Move up', moveDown: 'Move down', edit: 'Edit', resetSkills: 'Restore built-in Skills',
   errName: 'Please enter a name', errNameLong: 'Names can be at most 24 characters', errTemplate: 'Please enter a prompt template', errNoSkill: 'Skill not found',
   mockPage: 'this page',
-  mockOverview: (t) => `This is a sample summary of “${t}”. The article opens with a core idea, explains the mechanism behind it with concrete examples, and ends with practical advice. In mock mode you can preview the whole Acer experience without a real model or API key.`,
+  mockOverview: (t) => `This is a sample summary of “${t}”. The article opens with a core idea, explains the mechanism behind it with concrete examples, and ends with practical advice. In mock mode you can preview the whole Representer experience without a real model or API key.`,
   mockTerms: ['sample summary', 'core idea', 'practical advice', 'mock mode'],
   mockSections: [
     ['Core idea', ['States the main problem the page tackles', 'Explains why the problem matters', 'Sets up the argument that follows']],

@@ -1,6 +1,6 @@
 {
-  "extName": { "message": "Acer - AI Page Summary & Chat" },
-  "extShortName": { "message": "Acer" },
+  "extName": { "message": "Representer - AI Page Summary & Chat" },
+  "extShortName": { "message": "Representer" },
   "extDescription": { "message": "Open-source AI summary and follow-up chat for any web page. Bring your own OpenAI-compatible key (BYOK)." },
-  "cmdToggle": { "message": "Toggle the Acer overlay" }
+  "cmdToggle": { "message": "Toggle the Representer overlay" }
 }

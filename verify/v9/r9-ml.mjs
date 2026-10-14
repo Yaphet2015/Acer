@@ -1,7 +1,7 @@
 import http from 'node:http';
 import puppeteer from 'puppeteer-core';
 const OUT=new URL('./composer', import.meta.url).pathname;
-const html = `<html><head><title>示例文章：如何设计 AI 原生界面</title></head><body><article><h1>如何设计 AI 原生界面</h1><p id="p">${'这是一段示例正文，用来测试 Acer 的总结功能。'.repeat(40)}</p></article></body></html>`;
+const html = `<html><head><title>示例文章：如何设计 AI 原生界面</title></head><body><article><h1>如何设计 AI 原生界面</h1><p id="p">${'这是一段示例正文，用来测试 Representer 的总结功能。'.repeat(40)}</p></article></body></html>`;
 const srv = http.createServer((q,r)=>{r.writeHead(200,{'content-type':'text/html; charset=utf-8'});r.end(html)}); await new Promise(r=>srv.listen(0,'127.0.0.1',r));
 const br = await puppeteer.launch({ executablePath:'/usr/bin/google-chrome', headless:true, pipe:true, enableExtensions:true, args:['--no-sandbox'], defaultViewport:{width:1280,height:800} });
 await br.installExtension('/tmp/swtest/ext');
@@ -12,7 +12,7 @@ const page = await br.newPage(); await page.goto(pageUrl); await sleep(500);
 await sw.evaluate(async()=>{ await chrome.storage.local.clear(); await chrome.storage.local.set({settings:{baseUrl:'https://api.openai.com/v1',apiKey:'',model:'m',mock:true}}); });
 const toggle=()=>sw.evaluate(async()=>{ const [t]=await chrome.tabs.query({active:true}); await chrome.tabs.sendMessage(t.id,{type:'toggle'}); });
 await toggle(); await sleep(2000);
-const S='document.querySelector("acer-overlay").shadowRoot'; const ev=(c)=>page.evaluate(new Function(c));
+const S='document.querySelector("representer-overlay").shadowRoot'; const ev=(c)=>page.evaluate(new Function(c));
 const txt=(sel)=>ev(`return ${S}.querySelector('${sel}')?.innerText.replace(/\\s+/g,' ') ?? null`);
 const typeIn=async(t)=>{ await ev(`${S}.querySelector('textarea').focus()`); await page.keyboard.type(t); };
 await ev(`[...${S}.querySelectorAll('button')].find(b=>b.innerText.trim()==='对话').click()`); await sleep(400);

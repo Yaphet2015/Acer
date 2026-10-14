@@ -1,7 +1,7 @@
 {
-  "name": "acer",
+  "name": "representer",
   "version": "0.1.0",
-  "description": "Acer: open-source Chrome extension for AI page summaries, mind-map outlines and chat, BYOK (OpenAI-compatible).",
+  "description": "Representer: open-source Chrome extension for AI page summaries, mind-map outlines and chat, BYOK (OpenAI-compatible).",
   "keywords": [
     "chrome-extension",
     "ai",

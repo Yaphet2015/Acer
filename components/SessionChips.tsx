@@ -8,7 +8,7 @@ export function SessionChips({ state, onSwitch, onClose, onFork, disabled }: {
 }) {
   const t = useT(); const lang = useLang();
   return (
-    <div data-session-chips className="acer-noscrollbar flex shrink-0 items-center gap-1 overflow-x-auto border-b border-zinc-100 px-3 py-1.5">
+    <div data-session-chips className="rp-noscrollbar flex shrink-0 items-center gap-1 overflow-x-auto border-b border-zinc-100 px-3 py-1.5">
       {state.sessions.map((s) => {
         const active = s.id === state.active;
         return (

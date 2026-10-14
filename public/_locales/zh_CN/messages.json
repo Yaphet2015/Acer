@@ -1,6 +1,6 @@
 {
-  "extName": { "message": "Acer - 网页 AI 总结与对话" },
-  "extShortName": { "message": "Acer" },
+  "extName": { "message": "Representer - 网页 AI 总结与对话" },
+  "extShortName": { "message": "Representer" },
   "extDescription": { "message": "开源的网页 AI 总结与追问助手，一键读懂任意网页。自带 OpenAI 兼容 API Key（BYOK），数据只存本地。" },
-  "cmdToggle": { "message": "显示/隐藏 Acer 浮层" }
+  "cmdToggle": { "message": "显示/隐藏 Representer 浮层" }
 }
