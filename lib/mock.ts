@@ -1,4 +1,5 @@
-import { messages, type Lang } from './i18n';
+import type { Lang } from './i18n';
+import { mockText } from './mock-text';
 import type { Settings, Summary } from './types';
 import { isLocalUrl } from './url';
 
@@ -16,7 +17,7 @@ const sleep = (ms: number, signal?: AbortSignal) => new Promise<void>((res, rej)
 });
 
 export function buildMockSummary(title: string, lang: Lang = 'zh-CN'): Summary {
-  const m = messages(lang);
+  const m = mockText(lang);
   const icons = ['target', 'lightbulb', 'check'] as const;
   return {
     overview: m.mockOverview(title.trim() || m.mockPage),
@@ -31,7 +32,7 @@ export async function mockSummary(title: string, lang: Lang = 'zh-CN', signal?: 
 }
 
 export function mockReplyText(question: string, lang: Lang = 'zh-CN'): string {
-  return messages(lang).mockReply(question.slice(0, 120));
+  return mockText(lang).mockReply(question.slice(0, 120));
 }
 
 /** Stream the mock reply token by token (~30ms each): words for Latin text, 1–2 chars for CJK. */

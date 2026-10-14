@@ -28,7 +28,6 @@ English · [简体中文](./README.zh-CN.md)
 - 🔝 **Always on top**: the panel renders in the browser's top layer, so site navbars and popups can't cover it. The rest of the page stays clickable.
 - 🌐 **i18n**: English and 简体中文. The language follows the browser, or you can set it in Options.
 - 🔑 **BYOK, privacy first**: requests go from the extension straight to the endpoint you configure, with no third-party servers in between.
-- 🧪 **Mock mode**: try the whole UI without an API key.
 
 ## Screenshots
 
@@ -66,7 +65,6 @@ npm run build        # output: .output/chrome-mv3
 | **API Key** | Stored only in `chrome.storage.local` on your machine |
 | **Model** | Fetched automatically from `GET /models`. Searchable, and you can type a custom model name |
 | **Test connection** | Sends a tiny request to the selected model and shows the latency or the error |
-| **Mock mode** | Returns a sample summary and streamed sample replies. Turned on automatically when no key is set (except for local endpoints) |
 | **Language** | Auto / English / 简体中文 |
 
 **Skills** can be added, edited, deleted and reordered in Options. Placeholders: `{{input}}` (composer text, or the page selection when the composer is empty), `{{selection}}` (the last text selected on the page), `{{page_title}}`. Type `/` in the composer to see all commands.
@@ -81,12 +79,14 @@ npm test          # Vitest unit tests
 npm run zip       # package zip
 ```
 
+Dev builds (`npm run dev`) add a Mock mode toggle in Options that returns sample summaries and replies, for testing the UI without a model. Production builds leave it out.
+
 Stack: WXT · React · TypeScript · Tailwind CSS · Framer Motion · Shadow DOM · [pi durable](https://github.com/earendil-works/pi) (OpenAI-compatible `/chat/completions`)
 
 ```
 entrypoints/   background (messaging & streaming), content (Shadow DOM overlay), options
 components/    UI (panel, chat, Skills, model picker…); bui/ holds base components adapted from Beautiful UI
-lib/           pure logic: cache, sessions, Skills, messaging, storage, mock, LLM calls, parsing
+lib/           pure logic: cache, sessions, Skills, messaging, storage, LLM calls, dev-only mock, parsing
 tests/         Vitest unit tests
 ```
 
