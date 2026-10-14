@@ -55,8 +55,14 @@ export async function runTurn(
     let streamed = '';
     const events = onDelta ? await watchEvents(harness, root.id, ctx) : null;
     events?.start(async (batch: readonly any[]) => {
-      for (const e of batch) if (e.type === 'message_update')
-        for (const c of e.changes) if (c.type === 'text_delta') { streamed += c.delta; onDelta!(c.delta); }
+      const emit = (d: string) => { if (d) { streamed += d; onDelta!(d); } };
+      for (const e of batch) {
+        // the assistant message_start can already carry the first chunk(s) of text
+        if (e.type === 'message_start' && e.message?.role === 'assistant')
+          for (const b of e.message.content ?? []) if (b.type === 'text') emit(b.text);
+        if (e.type === 'message_update')
+          for (const c of e.changes) if (c.type === 'text_delta') emit(c.delta);
+      }
     });
     const submission = await root.submit({ type: 'input', content: input }, ctx);
     const onAbort = () => { (root as any).abort?.(ctx).catch?.(() => {}); };
