@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLang, useT } from './i18n';
 import { CHAT_PORT, rpc, type ChatEvent, type ChatRequest } from '@/lib/messages';
 import { chromeKV, KEYS, onStorageChange } from '@/lib/storage';
-import { getSession, MAIN_ID, parseSide, sessionLabel, type SessionsState } from '@/lib/sessions';
+import { getSession, initialState, MAIN_ID, parseSide, sessionLabel, type SessionsState } from '@/lib/sessions';
 import { createSkillStore, localizeSkill, renderTemplate, type Skill } from '@/lib/skills';
 import type { ChatMessage } from '@/lib/types';
 import { SessionChips } from './SessionChips';
@@ -26,7 +26,12 @@ export function Chat({ url, pageTitle, disabled, reloadKey }: { url: string; pag
   const sid = state?.active ?? MAIN_ID;
   const messages: ChatMessage[] = (state && getSession(state, sid)?.messages) || [];
 
-  useEffect(() => { rpc('getSessions', { url }).then((r) => r.ok && setState(r.state)); }, [url, reloadKey]);
+  const streaming = useRef(false);
+  const reload = useCallback(() => { rpc('getSessions', { url }).then((r) => r.ok && setState(r.state)); }, [url]);
+  useEffect(reload, [reload, reloadKey]);
+  // The background saves turns to storage; pick them up when this view isn't streaming them itself
+  // (e.g. a reply that finished while the panel was on another tab or minimized).
+  useEffect(() => onStorageChange(['sess:' + url], () => { if (!streaming.current) reload(); }), [url, reload]);
   const loadSkills = useCallback(() => skillStore.ordered().then((l) => setSkills(l.map((s) => localizeSkill(s, lang)))), [skillStore, lang]);
   useEffect(() => {
     loadSkills();
@@ -39,10 +44,10 @@ export function Chat({ url, pageTitle, disabled, reloadKey }: { url: string; pag
   useEffect(() => { end.current?.scrollIntoView({ block: 'end' }); }, [messages.length, messages[messages.length - 1]?.content]);
 
   const patchMessages = (id: string, f: (m: ChatMessage[]) => ChatMessage[]) =>
-    setState((s) => s && { ...s, sessions: s.sessions.map((x) => (x.id === id ? { ...x, messages: f(x.messages) } : x)) });
+    setState((prev) => { const s = prev ?? initialState(); return { ...s, sessions: s.sessions.map((x) => (x.id === id ? { ...x, messages: f(x.messages) } : x)) }; });
 
   const stream = (text: string, targetSid: string, label?: string) => {
-    setBusy(true);
+    setBusy(true); streaming.current = true;
     patchMessages(targetSid, (m) => [...m, { role: 'user', content: text, ...(label ? { label } : {}) }, { role: 'assistant', content: '' }]);
     const port = chrome.runtime.connect({ name: CHAT_PORT });
     const patch = (f: (s: string) => string) => patchMessages(targetSid, (m) => { const c = [...m]; c[c.length - 1] = { role: 'assistant', content: f(c[c.length - 1]!.content) }; return c; });
@@ -50,7 +55,8 @@ export function Chat({ url, pageTitle, disabled, reloadKey }: { url: string; pag
       if ('delta' in msg) patch((s) => s + msg.delta);
       else {
         if ('error' in msg) { const err = msg.error; patch((s) => s + (s ? '\n\n' : '') + '⚠️ ' + err); }
-        setBusy(false); port.disconnect();
+        setBusy(false); streaming.current = false; port.disconnect();
+        if ('done' in msg) reload(); // sync with what the background saved (keep a shown error as is)
       }
     });
     port.postMessage({ url, text, sid: targetSid, label } satisfies ChatRequest);

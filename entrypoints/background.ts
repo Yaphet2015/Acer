@@ -2,10 +2,10 @@ import { createCache } from '@/lib/cache';
 import { CHAT_PORT, TOGGLE, type Api, type ChatEvent, type ChatRequest, type MsgType, type Request } from '@/lib/messages';
 import { listModels, testConnection } from '@/lib/models';
 import { providerFor } from '@/lib/provider';
-import { appendMessages, closeSession, forkSession, setActive } from '@/lib/sessions';
+import { runChatTurn } from '@/lib/chat';
+import { closeSession, forkSession, setActive } from '@/lib/sessions';
 import { messages, resolveLang, uiLanguage } from '@/lib/i18n';
 import { chromeKV, loadSettings } from '@/lib/storage';
-import type { ChatMessage } from '@/lib/types';
 
 const COMMAND = 'toggle-overlay';
 
@@ -65,12 +65,7 @@ export default defineBackground(() => {
     port.onMessage.addListener(async ({ url, text, sid, label }: ChatRequest) => {
       try {
         const { s, lang } = await ctx();
-        const c = await cache.getSummary(url);
-        if (!c) throw new Error(messages(lang).summaryExpired);
-        const history = ((await cache.getSessions(url)).sessions.find((x) => x.id === sid)?.messages ?? []).filter((m) => m.content);
-        const out = await providerFor(s, lang).chat(c, history, text, (delta) => post({ delta }), ac.signal);
-        const userMsg: ChatMessage = label ? { role: 'user', content: text, label } : { role: 'user', content: text };
-        await cache.updateSessions(url, (s) => appendMessages(s, sid, [userMsg, { role: 'assistant', content: out }]));
+        await runChatTurn(cache, providerFor(s, lang), { url, text, sid, label }, (delta) => post({ delta }), ac.signal, messages(lang).summaryExpired);
         post({ done: true });
       } catch (e: any) {
         post({ error: String(e?.message ?? e) });
