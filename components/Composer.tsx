@@ -4,6 +4,7 @@ import { SlashMenu, type SlashItem } from './SlashMenu';
 
 const LINE_PX = 18; // 13px * 1.4 line-height, rounded
 const MAX_LINES = 6;
+const MIN_PX = 36; // keeps the box ~12px taller than the old two-line placeholder layout
 
 interface Props {
   value: string; onChange(v: string): void; onSubmit(): void;
@@ -23,7 +24,7 @@ export function Composer({ value, onChange, onSubmit, disabled, canSend, status,
     const el = inputRef.current; if (!el) return;
     el.style.height = 'auto';
     const max = LINE_PX * MAX_LINES;
-    el.style.height = `${Math.min(Math.max(el.scrollHeight, LINE_PX), max)}px`;
+    el.style.height = `${Math.min(Math.max(el.scrollHeight, MIN_PX), max)}px`;
     el.style.overflowY = el.scrollHeight > max ? 'auto' : 'hidden';
   }, [value]);
 
@@ -31,11 +32,11 @@ export function Composer({ value, onChange, onSubmit, disabled, canSend, status,
     <>
       {showSlash && <SlashMenu items={slashItems} active={slashActive} onPick={onPickSlash} onHover={setSlashActive} />}
       {/* composer — adapted from Beautiful UI ChatComposer (https://www.beautifului.dev/r/chat-composer.json, MIT) */}
-      <div className="px-3 pb-1">
+      <div className="px-3 pb-3">
         <div
           role="presentation"
           onClick={() => inputRef.current?.focus()}
-          className="flex cursor-text flex-col gap-2 rounded-control border border-line bg-field p-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.035)] transition-[border-color,box-shadow] duration-150 focus-within:border-accent focus-within:shadow-[0_0_0_3px_var(--accent-ring)]"
+          className="flex cursor-text flex-col gap-2 rounded-control border border-line bg-field px-2.5 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.035)] transition-[border-color,box-shadow] duration-150 focus-within:border-accent focus-within:shadow-[0_0_0_3px_var(--accent-ring)]"
         >
           <textarea
             ref={inputRef} rows={1} value={value} disabled={disabled}
@@ -55,7 +56,7 @@ export function Composer({ value, onChange, onSubmit, disabled, canSend, status,
             }}
             placeholder={disabled ? t.placeholderWait : t.placeholder}
             aria-label={t.inputLabel}
-            className="rp-scroll block w-full resize-none overflow-hidden bg-transparent text-[13px] leading-[18px] text-ink outline-none placeholder:text-ink-3"
+            className="rp-scroll block min-h-[36px] w-full resize-none overflow-hidden bg-transparent text-[13px] leading-[18px] text-ink outline-none placeholder:text-ink-3"
           />
           <div className="flex items-center justify-between">
             <span className="text-[11px] text-ink-3">{status}</span>
