@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import { useT } from './i18n';
 import { useCallback, useEffect, useState } from 'react';
 import { extractPage } from '@/lib/extract';
 import { normalizeUrl } from '@/lib/url';
@@ -16,6 +17,7 @@ import LoadingState from './bui/LoadingState';
 import { Shimmer } from './bui/Shimmer';
 
 export function App() {
+  const t = useT();
   const [open, setOpen] = useState(true);
   const [min, setMin] = useState(false);
   const [tab, setTab] = useState<Tab>('overview');
@@ -45,7 +47,7 @@ export function App() {
       // keep the skeleton visible briefly so a fast re-summarize still reads as "something happened"
       if (force) await new Promise((res) => setTimeout(res, Math.max(0, 500 - (Date.now() - t0))));
       setSummary(r.summary); setChatKey((k) => k + 1);
-      if (force) { setFlash('已更新'); setTimeout(() => setFlash(''), 2000); }
+      if (force) { setFlash(t.updated); setTimeout(() => setFlash(''), 2000); }
     } catch (e: any) {
       setError(String(e.message ?? e));
     } finally { setLoading(false); }
@@ -68,7 +70,7 @@ export function App() {
         >
           {/* left-edge resize handle */}
           <div
-            role="separator" aria-orientation="vertical" aria-label="拖动调整宽度，双击恢复默认" title="拖动调整宽度，双击恢复默认"
+            role="separator" aria-orientation="vertical" aria-label={t.resizeHandle} title={t.resizeHandle}
             data-resize-handle
             {...handleProps}
             className="group absolute inset-y-0 left-0 z-10 w-2 cursor-col-resize touch-none"
@@ -79,21 +81,21 @@ export function App() {
           <div
             data-top-row
             className={`flex h-11 shrink-0 items-center justify-between gap-2 pl-3 pr-2 ${min ? 'cursor-pointer hover:bg-zinc-50' : 'border-b border-zinc-100'}`}
-            title={min ? '点击还原' : undefined}
+            title={min ? t.clickToRestore : undefined}
             onClick={() => min && setMin(false)}
           >
             <Segmented value={tab} onChange={(t) => { setTab(t); setMin(false); }} className="mx-0" />
-            {min && <span className="min-w-0 flex-1 truncate text-[12px] text-ink-2">{loading ? <Shimmer>总结中…</Shimmer> : title}</span>}
+            {min && <span className="min-w-0 flex-1 truncate text-[12px] text-ink-2">{loading ? <Shimmer>{t.summarizing}</Shimmer> : title}</span>}
             <div className="flex shrink-0 items-center gap-0.5 text-ink-2">
               <Button variant="quiet" size="icon" onClick={(e) => { e.stopPropagation(); run(true); }} disabled={loading}
-                title={loading ? '总结中…' : flash ? '已更新' : '重新总结'} aria-label="重新总结">
+                title={loading ? t.summarizing : flash ? t.updated : t.resummarize} aria-label={t.resummarize}>
                 {flash && !loading ? <Check className="h-4 w-4 text-green" /> : <Refresh className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />}
               </Button>
-              <Button variant="quiet" size="icon" title={min ? '还原' : '最小化'} aria-label={min ? '还原' : '最小化'}
+              <Button variant="quiet" size="icon" title={min ? t.restore : t.minimize} aria-label={min ? t.restore : t.minimize}
                 onClick={(e) => { e.stopPropagation(); setMin((m) => !m); }}>
                 {min ? <Restore /> : <Minus />}
               </Button>
-              <Button variant="quiet" size="icon" title="关闭" aria-label="关闭" onClick={(e) => { e.stopPropagation(); setOpen(false); }}><Close /></Button>
+              <Button variant="quiet" size="icon" title={t.close} aria-label={t.close} onClick={(e) => { e.stopPropagation(); setOpen(false); }}><Close /></Button>
             </div>
           </div>
           {!min && (
@@ -101,7 +103,7 @@ export function App() {
               <div className="relative min-h-0 flex-1">
                 {tab === 'overview' ? (
                   <div className="acer-scroll h-full overflow-y-auto">
-                    {loading && <><div className="px-4 pt-4"><LoadingState label="正在总结" /></div><Skeleton /></>}
+                    {loading && <><div className="px-4 pt-4"><LoadingState label={t.summarizingLabel} /></div><Skeleton /></>}
                     {!loading && error && <ErrorView error={error} retry={() => run(true)} />}
                     {!loading && summary && (
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
@@ -122,11 +124,12 @@ export function App() {
 }
 
 function ErrorView({ error, retry }: { error: string; retry: () => void }) {
+  const t = useT();
   return (
     <div className="space-y-3 p-6 text-center text-[13px] text-zinc-600">
-      <p>总结失败：{error}</p>
+      <p>{t.summaryFailed(error)}</p>
       <div className="flex justify-center gap-2">
-        <Button variant="secondary" size="sm" onClick={retry}>重试</Button>
+        <Button variant="secondary" size="sm" onClick={retry}>{t.retry}</Button>
       </div>
     </div>
   );

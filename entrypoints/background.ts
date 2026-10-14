@@ -3,6 +3,7 @@ import { CHAT_PORT, TOGGLE, type Api, type ChatEvent, type ChatRequest, type Msg
 import { listModels, testConnection } from '@/lib/models';
 import { providerFor } from '@/lib/provider';
 import { appendMessages, closeSession, forkSession, setActive } from '@/lib/sessions';
+import { messages, resolveLang, uiLanguage } from '@/lib/i18n';
 import { chromeKV, loadSettings } from '@/lib/storage';
 import type { ChatMessage } from '@/lib/types';
 
@@ -10,6 +11,8 @@ const COMMAND = 'toggle-overlay';
 
 export default defineBackground(() => {
   const cache = createCache(chromeKV);
+  /** settings + resolved UI language */
+  const ctx = async () => { const s = await loadSettings(); return { s, lang: resolveLang(s.lang, uiLanguage()) }; };
 
   // ── toggle: keyboard command + toolbar button ───────────────────────────
   const toggle = async (tabId?: number) => {
@@ -28,13 +31,14 @@ export default defineBackground(() => {
     getCached: async ({ url }) => ({ cached: await cache.getSummary(url) }),
     summarize: async ({ url, title, content, force }) => {
       if (!force) { const c = await cache.getSummary(url); if (c) return { summary: c.summary }; }
-      const summary = await providerFor(await loadSettings()).summarize(title, url, content);
+      const { s, lang } = await ctx();
+      const summary = await providerFor(s, lang).summarize(title, url, content);
       await cache.clearSummary(url);
       await cache.setSummary(url, { summary, content, title });
       return { summary };
     },
     getShortcut: async () => ({ shortcut: (await chrome.commands.getAll()).find((c) => c.name === COMMAND)?.shortcut ?? '' }),
-    listModels: async ({ settings }) => ({ models: await listModels(settings) }),
+    listModels: async ({ settings }) => ({ models: await listModels(settings, fetch, undefined, (await ctx()).lang) }),
     testConnection: async ({ settings }) => ({ result: await testConnection(settings) }),
     getSessions: async ({ url }) => ({ state: await cache.getSessions(url) }),
     forkSession: async ({ url, from }) => {
@@ -60,10 +64,11 @@ export default defineBackground(() => {
     const post = (e: ChatEvent) => { try { port.postMessage(e); } catch { /* port closed */ } };
     port.onMessage.addListener(async ({ url, text, sid, label }: ChatRequest) => {
       try {
+        const { s, lang } = await ctx();
         const c = await cache.getSummary(url);
-        if (!c) throw new Error('总结已过期，请点击「重新总结」。');
+        if (!c) throw new Error(messages(lang).summaryExpired);
         const history = ((await cache.getSessions(url)).sessions.find((x) => x.id === sid)?.messages ?? []).filter((m) => m.content);
-        const out = await providerFor(await loadSettings()).chat(c, history, text, (delta) => post({ delta }), ac.signal);
+        const out = await providerFor(s, lang).chat(c, history, text, (delta) => post({ delta }), ac.signal);
         const userMsg: ChatMessage = label ? { role: 'user', content: text, label } : { role: 'user', content: text };
         await cache.updateSessions(url, (s) => appendMessages(s, sid, [userMsg, { role: 'assistant', content: out }]));
         post({ done: true });

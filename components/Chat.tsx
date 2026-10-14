@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLang, useT } from './i18n';
 import { CHAT_PORT, rpc, type ChatEvent, type ChatRequest } from '@/lib/messages';
 import { chromeKV, KEYS, onStorageChange } from '@/lib/storage';
-import { getSession, MAIN_ID, parseSide, type SessionsState } from '@/lib/sessions';
-import { createSkillStore, renderTemplate, type Skill } from '@/lib/skills';
+import { getSession, MAIN_ID, parseSide, sessionLabel, type SessionsState } from '@/lib/sessions';
+import { createSkillStore, localizeSkill, renderTemplate, type Skill } from '@/lib/skills';
 import type { ChatMessage } from '@/lib/types';
 import { SessionChips } from './SessionChips';
 import { SkillsRow } from './SkillsRow';
@@ -11,6 +12,7 @@ import { slashItems, type SlashItem } from './SlashMenu';
 
 
 export function Chat({ url, pageTitle, disabled, reloadKey }: { url: string; pageTitle: string; disabled: boolean; reloadKey: number }) {
+  const t = useT();
   const [state, setState] = useState<SessionsState | null>(null);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
@@ -18,13 +20,14 @@ export function Chat({ url, pageTitle, disabled, reloadKey }: { url: string; pag
   const end = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const lastSelection = useRef('');
+  const lang = useLang();
   const skillStore = useRef(createSkillStore(chromeKV)).current;
 
   const sid = state?.active ?? MAIN_ID;
   const messages: ChatMessage[] = (state && getSession(state, sid)?.messages) || [];
 
   useEffect(() => { rpc('getSessions', { url }).then((r) => r.ok && setState(r.state)); }, [url, reloadKey]);
-  const loadSkills = useCallback(() => skillStore.ordered().then(setSkills), [skillStore]);
+  const loadSkills = useCallback(() => skillStore.ordered().then((l) => setSkills(l.map((s) => localizeSkill(s, lang)))), [skillStore, lang]);
   useEffect(() => {
     loadSkills();
     return onStorageChange([KEYS.skills, KEYS.skillsRecent], loadSkills);
@@ -79,7 +82,7 @@ export function Chat({ url, pageTitle, disabled, reloadKey }: { url: string; pag
     stream(text, sid);
   };
 
-  const items = slashItems(input, skills);
+  const items = slashItems(input, skills, t);
   const showSlash = items.length > 0 && !busy;
   const pickSlash = (it: SlashItem) => {
     if (it.skill) { runSkill(it.skill, ''); return; }
@@ -94,7 +97,7 @@ export function Chat({ url, pageTitle, disabled, reloadKey }: { url: string; pag
       <div className="acer-scroll flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto px-4 py-3">
         {!messages.length && (
           <p className="pt-8 text-center text-[13px] leading-relaxed text-ink-3">
-            {sid === MAIN_ID ? '关于这个页面，随便问点什么。' : '这是一个空的支线会话。'}<br />输入 <span className="text-ink-2">/</span> 查看命令
+            {sid === MAIN_ID ? t.emptyMain : t.emptySide}<br />{t.slashHintPre}<span className="text-ink-2">/</span>{t.slashHintPost}
           </p>
         )}
         {messages.map((m, i) => {
@@ -119,7 +122,7 @@ export function Chat({ url, pageTitle, disabled, reloadKey }: { url: string; pag
         <Composer
           value={input} onChange={setInput} onSubmit={submit} disabled={disabled} canSend={canSend}
           slashItems={showSlash ? items : []} onPickSlash={pickSlash} inputRef={inputRef}
-          status={sid === MAIN_ID ? '' : `当前：${getSession(state!, sid)?.name}`}
+          status={sid === MAIN_ID ? '' : t.current(sessionLabel(getSession(state!, sid)!, lang))}
         />
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { messages, type Lang } from './i18n';
 import type { ChatMessage } from './types';
 
 export interface ChatSession { id: string; name: string; messages: ChatMessage[]; parent?: string; createdAt: number }
@@ -16,7 +17,7 @@ export function parseSide(text: string): { message: string } | null {
 }
 
 function nextSideNumber(state: SessionsState): number {
-  const nums = state.sessions.map((s) => s.name.match(/^支线 (\d+)$/)?.[1]).filter(Boolean).map(Number);
+  const nums = state.sessions.map((s) => s.name.match(/^(?:支线|Side) (\d+)$/)?.[1]).filter(Boolean).map(Number);
   return (nums.length ? Math.max(...nums) : 0) + 1;
 }
 
@@ -43,6 +44,14 @@ export function setActive(state: SessionsState, id: string): SessionsState {
 
 export function appendMessages(state: SessionsState, id: string, msgs: ChatMessage[]): SessionsState {
   return { ...state, sessions: state.sessions.map((s) => (s.id === id ? { ...s, messages: [...s.messages, ...msgs] } : s)) };
+}
+
+/** Display name in the UI language. Stored names stay as created ("主线", "支线 N"). */
+export function sessionLabel(s: Pick<ChatSession, 'id' | 'name'>, lang: Lang): string {
+  const t = messages(lang);
+  if (s.id === MAIN_ID) return t.mainSession;
+  const n = s.name.match(/^(?:支线|Side) (\d+)$/)?.[1];
+  return n ? t.sideSession(Number(n)) : s.name;
 }
 
 export function getSession(state: SessionsState, id: string): ChatSession | undefined {

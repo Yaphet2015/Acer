@@ -1,13 +1,15 @@
 import { highlightTerms } from '@/lib/parse';
+import { useT } from './i18n';
 import type { Summary } from '@/lib/types';
 import { BulletIcons, Sparkle } from './Icons';
 
 export function Overview({ summary }: { summary: Summary }) {
+  const t = useT();
   return (
     <div className="space-y-5 px-4 py-4">
       <section>
         <h3 className="mb-2 flex items-center gap-1.5 text-[15px] font-semibold text-zinc-900">
-          <Sparkle className="h-4 w-4 text-accent" /> 概览
+          <Sparkle className="h-4 w-4 text-accent" /> {t.overview}
         </h3>
         <p className="text-[13.5px] leading-[1.7] text-zinc-700">
           {highlightTerms(summary.overview, summary.keyTerms).map((s, i) =>

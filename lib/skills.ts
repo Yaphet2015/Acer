@@ -1,3 +1,4 @@
+import { messages, type Lang } from './i18n';
 import { KEYS, type KV } from './storage';
 
 export interface Skill { id: string; name: string; icon?: string; template: string; builtin?: boolean }
@@ -8,6 +9,23 @@ export const DEFAULT_SKILLS: Skill[] = [
   { id: 'explain', name: '解释概念', icon: '💡', template: '用通俗易懂的中文解释这个概念，并结合页面《{{page_title}}》的上下文举一个例子：\n\n{{input}}', builtin: true },
   { id: 'qa', name: '出几道题', icon: '📝', template: '根据页面内容出 3 道检验理解的问答题，并附参考答案。{{input}}', builtin: true },
 ];
+
+/** English versions of the built-in Skills (same ids). */
+export const DEFAULT_SKILLS_EN: Skill[] = [
+  { id: 'translate-en', name: 'Translate to English', icon: '🌐', template: 'Translate the following into natural, idiomatic English. Output only the translation:\n\n{{input}}', builtin: true },
+  { id: 'key-points', name: 'Key points', icon: '📌', template: 'From the page “{{page_title}}”, extract the 3–5 most important points as a concise list. {{input}}', builtin: true },
+  { id: 'explain', name: 'Explain', icon: '💡', template: 'Explain this concept in plain English and give one example in the context of the page “{{page_title}}”:\n\n{{input}}', builtin: true },
+  { id: 'qa', name: 'Quiz me', icon: '📝', template: 'Write 3 questions that check understanding of the page, with reference answers. {{input}}', builtin: true },
+];
+const BUILTINS: Record<Lang, Skill[]> = { 'zh-CN': DEFAULT_SKILLS, en: DEFAULT_SKILLS_EN };
+
+/** Show an unedited built-in Skill in the UI language; edited or custom Skills are returned as-is. */
+export function localizeSkill(s: Skill, lang: Lang): Skill {
+  if (!s.builtin) return s;
+  const pristine = Object.values(BUILTINS).some((list) => list.some((d) => d.id === s.id && d.name === s.name && d.template === s.template));
+  const target = BUILTINS[lang].find((d) => d.id === s.id);
+  return pristine && target ? { ...s, name: target.name, template: target.template } : s;
+}
 
 export interface TemplateVars { input?: string; selection?: string; page_title?: string }
 
@@ -21,10 +39,11 @@ export function renderTemplate(tpl: string, vars: TemplateVars): string {
   return out.replace(/\n{3,}/g, '\n\n').trim();
 }
 
-export function validateSkill(s: Partial<Skill>): string | null {
-  if (!s.name?.trim()) return '请填写名称';
-  if (s.name.trim().length > 24) return '名称最多 24 个字';
-  if (!s.template?.trim()) return '请填写提示词模板';
+export function validateSkill(s: Partial<Skill>, lang: Lang = 'zh-CN'): string | null {
+  const t = messages(lang);
+  if (!s.name?.trim()) return t.errName;
+  if (s.name.trim().length > 24) return t.errNameLong;
+  if (!s.template?.trim()) return t.errTemplate;
   return null;
 }
 
@@ -43,23 +62,23 @@ export function bumpRecent(recent: string[], id: string, max = 20): string[] {
   return [id, ...recent.filter((x) => x !== id)].slice(0, max);
 }
 
-export function createSkillStore(kv: KV, genId: () => string = () => `skill-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`) {
+export function createSkillStore(kv: KV, lang: Lang = 'zh-CN', genId: () => string = () => `skill-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`) {
   const list = async (): Promise<Skill[]> => ((await kv.get(K_SKILLS)) as Skill[] | undefined) ?? DEFAULT_SKILLS.map((s) => ({ ...s }));
   const save = (skills: Skill[]) => kv.set(K_SKILLS, skills);
   const recent = async (): Promise<string[]> => ((await kv.get(K_RECENT)) as string[] | undefined) ?? [];
   return {
     list,
     async add(s: Omit<Skill, 'id'>): Promise<Skill> {
-      const err = validateSkill(s); if (err) throw new Error(err);
+      const err = validateSkill(s, lang); if (err) throw new Error(err);
       const skill: Skill = { id: genId(), name: s.name.trim(), icon: s.icon?.trim() || undefined, template: s.template };
       await save([...(await list()), skill]);
       return skill;
     },
     async update(id: string, patch: Partial<Omit<Skill, 'id'>>): Promise<Skill> {
       const all = await list(); const i = all.findIndex((s) => s.id === id);
-      if (i < 0) throw new Error('Skill 不存在');
+      if (i < 0) throw new Error(messages(lang).errNoSkill);
       const next = { ...all[i]!, ...patch, id };
-      const err = validateSkill(next); if (err) throw new Error(err);
+      const err = validateSkill(next, lang); if (err) throw new Error(err);
       next.name = next.name.trim(); next.icon = next.icon?.trim() || undefined;
       all[i] = next; await save(all); return next;
     },
