@@ -1,6 +1,6 @@
 <div align="center">
 
-# Acer
+# Representer
 
 **网页 AI 总结 · 思维导图大纲 · 继续对话 —— 开源、BYOK 的 Chrome 扩展**
 
@@ -9,11 +9,11 @@
 [![React + TypeScript](https://img.shields.io/badge/React-TypeScript-3178C6?logo=typescript&logoColor=white)](https://react.dev)
 [![WXT](https://img.shields.io/badge/built%20with-WXT-67D55E)](https://wxt.dev)
 
-<img src="docs/screenshots/overview.png" alt="Acer 在网页右侧显示 AI 总结和思维导图大纲" width="820" />
+<img src="docs/screenshots/overview.png" alt="Representer 在网页右侧显示 AI 总结和思维导图大纲" width="820" />
 
 </div>
 
-> **Acer** is an open-source **Chrome extension** that turns any web page into an **AI summary**, a **mind-map outline** and a follow-up **chat**. It is **BYOK** (bring your own key): it works with any OpenAI-compatible API (OpenAI, OpenRouter, DeepSeek, Ollama…), and all data stays in your browser.
+> **Representer** is an open-source **Chrome extension** that turns any web page into an **AI summary**, a **mind-map outline** and a follow-up **chat**. It is **BYOK** (bring your own key): it works with any OpenAI-compatible API (OpenAI, OpenRouter, DeepSeek, Ollama…), and all data stays in your browser.
 
 ## 目录
 - [功能](#功能) · [截图](#截图) · [快速开始](#快速开始) · [配置](#配置) · [开发](#开发) · [常见问题与限制](#常见问题与限制) · [许可与致谢](#许可与致谢)
@@ -42,8 +42,8 @@
 ## 快速开始
 
 ```bash
-git clone https://github.com/Yaphet2015/Acer.git
-cd Acer
+git clone https://github.com/Yaphet2015/Representer.git
+cd Representer
 npm install
 npm run build        # 产物在 .output/chrome-mv3
 ```
@@ -51,9 +51,9 @@ npm run build        # 产物在 .output/chrome-mv3
 1. 打开 `chrome://extensions`，开启右上角「开发者模式」。
 2. 点击「加载已解压的扩展程序」，选择 `.output/chrome-mv3`。
 3. 打开扩展的「选项」页，填写 Base URL、API Key 并选择模型（见下方[配置](#配置)）。
-4. 在任意网页按 **`⌘E`（Mac）/ `Ctrl+E`（Windows/Linux）** 或点击工具栏图标，打开 Acer。
+4. 在任意网页按 **`⌘E`（Mac）/ `Ctrl+E`（Windows/Linux）** 或点击工具栏图标，打开 Representer。
 
-> **快捷键说明**：可在 `chrome://extensions/shortcuts` 自定义。Chrome 可能拒绝分配与浏览器自带快捷键冲突的组合（例如 Linux 上的 `Ctrl+E`），此时 Acer 会在页面内兜底监听 `⌘E` / `Ctrl+E`。兜底只在普通网页生效，`chrome://` 页面和 Chrome 应用商店中不可用；Mac 上 `⌘E` 会覆盖「用所选内容查找」。
+> **快捷键说明**：可在 `chrome://extensions/shortcuts` 自定义。Chrome 可能拒绝分配与浏览器自带快捷键冲突的组合（例如 Linux 上的 `Ctrl+E`），此时 Representer 会在页面内兜底监听 `⌘E` / `Ctrl+E`。兜底只在普通网页生效，`chrome://` 页面和 Chrome 应用商店中不可用；Mac 上 `⌘E` 会覆盖「用所选内容查找」。
 
 ## 配置
 

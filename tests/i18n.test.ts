@@ -70,8 +70,8 @@ describe('_locales', () => {
   it('provides the manifest name/description in en and zh_CN', () => {
     const en = JSON.parse(readFileSync('public/_locales/en/messages.json', 'utf8'));
     const zh = JSON.parse(readFileSync('public/_locales/zh_CN/messages.json', 'utf8'));
-    expect(en.extName.message).toBe('Acer - AI Page Summary & Chat');
-    expect(zh.extName.message).toBe('Acer - 网页 AI 总结与对话');
+    expect(en.extName.message).toBe('Representer - AI Page Summary & Chat');
+    expect(zh.extName.message).toBe('Representer - 网页 AI 总结与对话');
     for (const m of [en, zh]) expect(m.extDescription.message.length).toBeLessThanOrEqual(132);
     expect(Object.keys(zh).sort()).toEqual(Object.keys(en).sort());
   });
