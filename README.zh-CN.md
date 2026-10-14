@@ -11,7 +11,7 @@
 
 [English](./README.md) · 简体中文
 
-<img src="docs/screenshots/overview.png" alt="Representer 在网页右侧显示 AI 总结和分节要点" width="820" />
+<img src="docs/screenshots/zh-CN/overview.png" alt="Representer 在网页右侧显示 AI 总结和分节要点" width="820" />
 
 </div>
 
@@ -34,9 +34,9 @@
 
 | 继续对话 | 支线会话 /side |
 | :---: | :---: |
-| <img src="docs/screenshots/chat.png" width="400" /> | <img src="docs/screenshots/side-chat.png" width="400" /> |
+| <img src="docs/screenshots/zh-CN/chat.png" width="300" /> | <img src="docs/screenshots/zh-CN/side-chat.png" width="300" /> |
 | **自定义 Skills** | **自带 API Key** |
-| <img src="docs/screenshots/skills.png" width="400" /> | <img src="docs/screenshots/byok.png" width="400" /> |
+| <img src="docs/screenshots/zh-CN/skills.png" width="300" /> | <img src="docs/screenshots/zh-CN/byok.png" width="300" /> |
 
 ## 安装
 
