@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useT } from './i18n';
+import { useLang, useT } from './i18n';
 import { useCallback, useEffect, useState } from 'react';
 import { extractPage } from '@/lib/extract';
 import { normalizeUrl } from '@/lib/url';
@@ -29,6 +29,13 @@ export function App() {
   const [error, setError] = useState('');
   const [flash, setFlash] = useState('');
   const { width, resizing, handleProps } = useResizableWidth();
+  const lang = useLang();
+  // Tell translators (and screen readers) the panel's language, separate from the host page's.
+  const rootRef = useCallback((el: HTMLElement | null) => {
+    const host = (el?.getRootNode() as ShadowRoot | undefined)?.host as HTMLElement | undefined;
+    if (host) host.setAttribute('lang', lang);
+    el?.setAttribute('lang', lang);
+  }, [lang]);
 
   const run = useCallback(async (force: boolean) => {
     const u = normalizeUrl(location.href);
@@ -62,10 +69,10 @@ export function App() {
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <motion.div ref={rootRef} translate="no"
           initial={{ opacity: 0.6, x: width + 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0.6, x: width + 20 }}
           transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-          className="pointer-events-auto fixed right-5 top-5 flex flex-col overflow-hidden bg-white font-sans text-zinc-900 antialiased"
+          className="notranslate pointer-events-auto fixed right-5 top-5 flex flex-col overflow-hidden bg-white font-sans text-zinc-900 antialiased"
           style={{ width, minWidth: width, maxWidth: width, boxSizing: 'border-box', userSelect: resizing ? 'none' : undefined, borderRadius: 14, boxShadow: '0 8px 24px rgba(0,0,0,.1)', height: min ? 'auto' : 'calc(100vh - 40px)', border: '1px solid rgba(0,0,0,.06)' }}
         >
           {/* left-edge resize handle */}

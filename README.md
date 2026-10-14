@@ -23,6 +23,7 @@ English · [简体中文](./README.zh-CN.md)
 - 💬 **Follow-up chat**: ask about the summary and the original page. Replies stream in, and conversations are saved per page.
 - 🌿 **Side chats with `/side`**: fork the current conversation into a side session, then switch or close it any time.
 - ⚡ **Custom Skills**: turn your favorite prompts into one-click buttons with `{{input}}` / `{{selection}}` / `{{page_title}}` placeholders. Recently used Skills appear above the composer.
+- 🎛️ **Custom instructions**: add your own system prompt (tone, focus, language). It's added on top of the built-in instructions for both summaries and chat, so the summary format never breaks.
 - 🗂️ **24-hour cache**: revisiting a page within 24h reuses its summary, so no tokens are spent. Use **Re-summarize** to regenerate.
 - ⌨️ **`⌘E` / `Ctrl+E`**: toggle the panel, which slides in with a spring animation. You can minimize it and drag to resize it (320–640px; the width is remembered).
 - 🔝 **Always on top**: the panel renders in the browser's top layer, so site navbars and popups can't cover it. The rest of the page stays clickable.
@@ -65,6 +66,7 @@ npm run build        # output: .output/chrome-mv3
 | **API Key** | Stored only in `chrome.storage.local` on your machine |
 | **Model** | Fetched automatically from `GET /models`. Searchable, and you can type a custom model name |
 | **Test connection** | Sends a tiny request to the selected model and shows the latency or the error |
+| **Custom instructions** | Optional system prompt added after the built-in instructions, for summaries, chat, side chats and Skills. Empty = default |
 | **Language** | Auto / English / 简体中文 |
 
 **Skills** can be added, edited, deleted and reordered in Options. Placeholders: `{{input}}` (composer text, or the page selection when the composer is empty), `{{selection}}` (the last text selected on the page), `{{page_title}}`. Type `/` in the composer to see all commands.
