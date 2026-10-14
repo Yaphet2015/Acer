@@ -8,6 +8,7 @@ import type { ChatMessage } from '@/lib/types';
 import { SessionChips } from './SessionChips';
 import { SkillsRow } from './SkillsRow';
 import { Composer } from './Composer';
+import { Markdown } from './Markdown';
 import { slashItems, type SlashItem } from './SlashMenu';
 
 
@@ -109,9 +110,12 @@ export function Chat({ url, pageTitle, disabled, reloadKey }: { url: string; pag
               </div>
             </div>
           ) : (
-            <div key={i} className="whitespace-pre-wrap break-words text-[13px] leading-[1.65] text-ink">
-              {m.content}
-              {streaming && <span aria-hidden className="stream-caret is-streaming" />}
+            <div key={i} className="break-words text-[13px] leading-[1.65] text-ink">
+              {streaming && !m.content ? (
+                <span className="rp-thinking" role="status"><i /><i /><i /><span>{t.thinking}</span></span>
+              ) : (
+                <Markdown text={m.content} streaming={streaming} />
+              )}
             </div>
           );
         })}

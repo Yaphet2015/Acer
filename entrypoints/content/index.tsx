@@ -36,6 +36,17 @@ function pinOnTop(host: HTMLElement) {
   bus.on('toggle', () => setTimeout(raise, 0));
 }
 
+/**
+ * Keep page translators out of the panel: `translate="no"` (Chrome / Google Translate), and the `notranslate`
+ * class, which is what Read Frog and Immersive Translate check (Read Frog walks open shadow roots, so the
+ * class goes on the host and on the elements inside the shadow root too).
+ */
+function noTranslate(host: HTMLElement, container: HTMLElement, shadow: ShadowRoot) {
+  const els = new Set<HTMLElement>([host, container, ...(Array.from(shadow.children) as HTMLElement[])]);
+  for (let el = container.parentElement; el; el = el.parentElement) els.add(el);
+  for (const el of els) { el.setAttribute('translate', 'no'); el.classList.add('notranslate'); }
+}
+
 export default defineContentScript({
   matches: ['<all_urls>'],
   cssInjectionMode: 'ui',
@@ -59,6 +70,7 @@ export default defineContentScript({
             };
             fixZoom();
             pinOnTop(host);
+            noTranslate(host, container, _shadow);
             window.addEventListener('resize', fixZoom);
             const root = ReactDOM.createRoot(container);
             root.render(<LangProvider><App /></LangProvider>);
