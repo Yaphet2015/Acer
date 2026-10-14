@@ -60,8 +60,8 @@ function Options() {
   return (
     <div className="mx-auto max-w-lg space-y-6 p-10 font-sans text-zinc-900">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold">{t.settingsTitle}</h1>
-        <label className="flex items-center gap-2 text-[13px] text-zinc-600">{t.language}
+        <h1 className="whitespace-nowrap text-xl font-semibold">{t.settingsTitle}</h1>
+        <label className="flex shrink-0 items-center text-[13px] text-zinc-600"><span className="sr-only">{t.language}</span>
           <select aria-label={t.language} value={s.lang ?? 'auto'} data-lang-select
             onChange={async (e) => { const lang = e.target.value as Settings['lang']; setS({ ...s, lang }); await saveSettings({ ...(await loadSettings()), lang }); }}
             className="rounded-lg border border-zinc-200 bg-white px-2 py-1 text-[13px] outline-none focus:border-accent">
