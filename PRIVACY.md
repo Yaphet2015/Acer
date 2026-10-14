@@ -14,7 +14,7 @@ Representer 是一个开源 Chrome 扩展，用于对你正在浏览的网页生
 ### 数据发送到哪里
 - Representer 采用 **BYOK（自带密钥）** 模式。生成总结或回答时，上述网页内容和对话内容**只会直接发送到你在设置页配置的 API 地址**（例如 OpenAI、OpenRouter 或你本机的 Ollama），并附带你的 API Key 用于鉴权。
 - 这些数据由你选择的服务商按其隐私政策处理。Representer 的开发者无法访问这些请求。
-- 开启 Mock 模式或未填写 API Key 时，不会发出任何网络请求。
+- 未填写 API Key 时，不会发出任何网络请求。
 - Representer 不包含任何统计、分析、广告或追踪代码，也不会加载远程代码。
 
 ### 本地存储
@@ -40,7 +40,7 @@ Representer is an open-source Chrome extension that creates AI summaries, mind-m
 
 ### Where data goes
 - Representer is **BYOK (bring your own key)**. To generate a summary or answer, page content and chat messages are sent **only, and directly, to the API endpoint you configure** (e.g. OpenAI, OpenRouter, or a local Ollama server), together with your API key for authentication. That provider processes the data under its own privacy policy; Representer's developers have no access to these requests.
-- In Mock mode, or when no API key is set, no network requests are made.
+- When no API key is set, no network requests are made.
 - Representer contains no analytics, advertising or tracking code and does not load remote code.
 
 ### Local storage

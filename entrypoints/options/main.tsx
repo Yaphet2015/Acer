@@ -6,14 +6,16 @@ import { rpc } from '@/lib/messages';
 import { isLocalUrl } from '@/lib/url';
 import { Button } from '@/components/bui/Button';
 import { useMock } from '@/lib/mock';
+import { mockText } from '@/lib/mock-text';
 import { ModelCombobox } from '@/components/ModelCombobox';
 import { SkillsManager } from '@/components/SkillsManager';
-import { LangProvider, useT } from '@/components/i18n';
+import { LangProvider, useLang, useT } from '@/components/i18n';
 import type { TestResult } from '@/lib/models';
 import { DEFAULT_SETTINGS, type Settings } from '@/lib/types';
 
 function Options() {
   const t = useT();
+  const lang = useLang();
   const [s, setS] = useState<Settings>(DEFAULT_SETTINGS);
   const [shortcut, setShortcut] = useState('');
   const [saved, setSaved] = useState(false);
@@ -84,18 +86,19 @@ function Options() {
             {test && !test.ok && <span className="text-red-600">{t.testFail(test.error ?? '')}</span>}
           </span>
         </div>
-        {(() => {
+        {import.meta.env.DEV && (() => {
+          const m = mockText(lang);
           const auto = !s.mock && useMock(s); // no key (and not a local server) → mock is used automatically
           return (
             <div className="space-y-1">
               <label className="flex items-center gap-2 text-[13px] text-zinc-700">
                 <input type="checkbox" checked={s.mock || auto} disabled={auto} onChange={(e) => setS({ ...s, mock: e.target.checked })} />
-                <span className="font-medium">{t.mockMode}</span>
-                {auto && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] text-amber-800">{t.mockAuto}</span>}
-                {s.mock && <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] text-zinc-700">{t.mockManual}</span>}
+                <span className="font-medium">{m.mockMode}</span>
+                {auto && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] text-amber-800">{m.mockAuto}</span>}
+                {s.mock && <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] text-zinc-700">{m.mockManual}</span>}
               </label>
               <p className="pl-6 text-[12px] leading-relaxed text-zinc-500">
-                {t.mockDesc} {auto ? t.mockAutoDesc : t.mockHint}
+                {m.mockDesc} {auto ? m.mockAutoDesc : m.mockHint}
               </p>
             </div>
           );

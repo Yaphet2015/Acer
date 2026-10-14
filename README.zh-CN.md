@@ -28,7 +28,6 @@
 - 🔝 **始终置顶**：浮层渲染在浏览器 top layer，不会被网站导航栏或弹窗遮挡，浮层以外的页面照常可点。
 - 🌐 **多语言**：English / 简体中文，默认跟随浏览器，也可在设置中切换。
 - 🔑 **BYOK，隐私优先**：请求直接从扩展发往你配置的接口，不经过任何第三方服务器。
-- 🧪 **Mock 模式**：不填 Key 也能完整体验界面。
 
 ## 截图
 
@@ -66,7 +65,6 @@ npm run build        # 产物在 .output/chrome-mv3
 | **API Key** | 只保存在本机 `chrome.storage.local` |
 | **Model** | 自动从 `GET /models` 拉取，可搜索，也可手动输入 |
 | **测试连接** | 向所选模型发一条极短请求，显示耗时或错误信息 |
-| **Mock 模式** | 返回模拟总结和流式回复；未填 Key 时自动启用（本地地址除外） |
 | **语言** | 自动 / English / 简体中文 |
 
 **Skills** 在选项页增删改、排序。占位符：`{{input}}`（输入框文字；为空时用页面选中文字）、`{{selection}}`（页面上最近选中的文字）、`{{page_title}}`。在输入框输入 `/` 可查看全部命令。
@@ -80,6 +78,8 @@ npm run compile   # 类型检查
 npm test          # 单元测试
 npm run zip       # 打包 zip
 ```
+
+开发构建（`npm run dev`）的设置页会多一个 Mock 模式开关，返回模拟总结和回复，方便不接模型调试界面；正式构建不包含它。
 
 技术栈：WXT · React · TypeScript · Tailwind CSS · Framer Motion · Shadow DOM · [pi durable](https://github.com/earendil-works/pi)
 

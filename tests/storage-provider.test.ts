@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createCache } from '../lib/cache';
 import { providerFor } from '../lib/provider';
 import { forkSession } from '../lib/sessions';
@@ -24,10 +24,19 @@ describe('storage', () => {
 });
 
 describe('providerFor', () => {
-  it('uses the mock provider when mock is on or there is no key', async () => {
+  it('uses the mock provider in dev builds when mock is on or there is no key', async () => {
     for (const s of [{ ...DEFAULT_SETTINGS, mock: true, apiKey: 'k' }, { ...DEFAULT_SETTINGS, apiKey: '' }]) {
       const out = await providerFor(s).chat({ title: 't', summary: { overview: 'o', keyTerms: [], sections: [] }, content: '' }, [], 'hi', () => {});
       expect(out.length).toBeGreaterThan(0);
     }
   }, 30000);
+  describe('production builds', () => {
+    afterEach(() => { vi.unstubAllEnvs(); });
+    it('ignores a stored mock flag and asks for a key when none is set', async () => {
+      vi.stubEnv('DEV', false);
+      const ctx = { title: 't', summary: { overview: 'o', keyTerms: [], sections: [] }, content: '' };
+      await expect(providerFor({ ...DEFAULT_SETTINGS, mock: true, apiKey: '' }, 'en').chat(ctx, [], 'hi', () => {})).rejects.toThrow(/No API key/);
+      await expect(providerFor({ ...DEFAULT_SETTINGS, apiKey: '' }, 'en').summarize('t', 'u', 'c')).rejects.toThrow(/No API key/);
+    });
+  });
 });
