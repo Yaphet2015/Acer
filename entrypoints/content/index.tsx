@@ -5,6 +5,37 @@ import { LangProvider } from '@/components/i18n';
 import { bus } from '@/components/bus';
 import { rpc, TOGGLE } from '@/lib/messages';
 
+const HOST_STYLE: Record<string, string> = {
+  position: 'fixed', inset: '0', width: '100vw', height: '100vh', 'max-width': 'none', 'max-height': 'none',
+  margin: '0', padding: '0', border: '0', background: 'transparent', overflow: 'visible',
+  display: 'block', 'z-index': '2147483647', isolation: 'isolate', 'pointer-events': 'none',
+  transform: 'none', filter: 'none', contain: 'none', visibility: 'visible', opacity: '1',
+};
+
+/**
+ * Keep the overlay above everything on the page: a full-viewport, click-through fixed host with the max
+ * z-index (inline !important so page CSS can't win), promoted to the browser top layer via the Popover API
+ * when available, and re-attached as the last child of <html> if the page moves it.
+ */
+function pinOnTop(host: HTMLElement) {
+  for (const [k, v] of Object.entries(HOST_STYLE)) host.style.setProperty(k, v, 'important');
+  const canPopover = typeof (host as any).showPopover === 'function';
+  if (canPopover) host.setAttribute('popover', 'manual');
+  const raise = () => {
+    if (!canPopover || !host.isConnected) return;
+    try { if (host.matches(':popover-open')) host.hidePopover(); host.showPopover(); } catch { /* ignore */ }
+  };
+  const ensureLast = () => {
+    const html = document.documentElement;
+    if (host.parentNode !== html || html.lastElementChild !== host) { html.append(host); raise(); }
+  };
+  ensureLast();
+  raise();
+  new MutationObserver(ensureLast).observe(document.documentElement, { childList: true });
+  // Pages can open their own top-layer dialogs/popovers later; re-raise when ours is toggled open.
+  bus.on('toggle', () => setTimeout(raise, 0));
+}
+
 export default defineContentScript({
   matches: ['<all_urls>'],
   cssInjectionMode: 'ui',
@@ -18,7 +49,7 @@ export default defineContentScript({
         createShadowRootUi(ctx, {
           name: 'representer-overlay',
           position: 'overlay',
-          zIndex: 2147483646,
+          zIndex: 2147483647,
           anchor: 'html', // outside <body>, so body-level zoom/transform on the host page can't affect us
           onMount(container, _shadow, host) {
             // Cancel any CSS zoom inherited from the host page (e.g. html { zoom: .8 }) so the panel is always 380 CSS px.
@@ -27,6 +58,7 @@ export default defineContentScript({
               host.style.setProperty('zoom', String(1 / (z || 1)), 'important');
             };
             fixZoom();
+            pinOnTop(host);
             window.addEventListener('resize', fixZoom);
             const root = ReactDOM.createRoot(container);
             root.render(<LangProvider><App /></LangProvider>);
