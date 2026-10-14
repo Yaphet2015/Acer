@@ -10,28 +10,33 @@
 .rp-scroll::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 999px; }
 .rp-scroll::-webkit-scrollbar-track { background: transparent; }
 .rp-scroll::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
-/* Markdown in replies (components/Markdown.tsx) */
-.rp-md { font-size: 13px; line-height: 1.65; color: var(--ink); overflow-wrap: anywhere; white-space: normal; }
-.rp-md > :first-child, .rp-md [data-streamdown] > :first-child { margin-top: 0 !important; }
-.rp-md p { margin: 0 0 8px; }
-.rp-md h1, .rp-md h2, .rp-md h3, .rp-md h4 { font-weight: 650; color: var(--ink); margin: 14px 0 6px; line-height: 1.35; }
-.rp-md h1 { font-size: 16px; } .rp-md h2 { font-size: 15px; } .rp-md h3 { font-size: 14px; } .rp-md h4 { font-size: 13px; }
-.rp-md strong { font-weight: 650; color: var(--ink); }
-.rp-md ul, .rp-md ol { margin: 0 0 8px; padding-left: 18px; } .rp-md ul { list-style: disc; } .rp-md ol { list-style: decimal; }
-.rp-md li { margin: 2px 0; } .rp-md li > p { margin: 0; } .rp-md li::marker { color: var(--ink-3); }
+/* Markdown in replies (components/Markdown.tsx). streamdown adds generic utility classes (flex, gap-2, h-8, p-4, my-4,
+   space-y-4…) that our own Tailwind build also generates, so every box below sets its own spacing explicitly. */
+.rp-md { font-size: 13px; line-height: 1.6; color: var(--ink); overflow-wrap: anywhere; white-space: normal; }
+.rp-md > * { margin-top: 0 !important; margin-bottom: 6px !important; } .rp-md > :last-child { margin-bottom: 0 !important; }
+.rp-md p { margin: 0; }
+.rp-md h1, .rp-md h2, .rp-md h3, .rp-md h4 { font-weight: 650; color: var(--ink); line-height: 1.35; }
+.rp-md > :is(h1, h2, h3, h4):not(:first-child) { margin-top: 10px !important; }
+.rp-md h1 { font-size: 15px; } .rp-md h2 { font-size: 14px; } .rp-md h3, .rp-md h4 { font-size: 13px; }
+.rp-md strong, .rp-md [data-streamdown="strong"] { font-weight: 650; color: var(--ink); }
+.rp-md ul, .rp-md ol { padding-left: 18px; list-style-position: outside; } .rp-md ul { list-style-type: disc; } .rp-md ol { list-style-type: decimal; }
+.rp-md li { margin: 0; padding: 0 !important; } .rp-md li + li { margin-top: 2px; } .rp-md li > p { margin: 0; display: inline; }
+.rp-md li > ul, .rp-md li > ol { margin: 2px 0 0; }
+.rp-md li::marker { color: var(--ink-3); }
 .rp-md a { color: var(--accent); text-decoration: none; } .rp-md a:hover { text-decoration: underline; }
-.rp-md blockquote { margin: 0 0 8px; padding-left: 10px; border-left: 3px solid var(--accent-tint); color: var(--ink-2); }
-.rp-md hr { border: 0; border-top: 1px solid var(--line); margin: 12px 0; }
+.rp-md blockquote { padding-left: 10px; border-left: 3px solid var(--accent-tint); color: var(--ink-2); }
+.rp-md hr { border: 0; border-top: 1px solid var(--line); }
 .rp-md :not(pre) > code { background: #f4f4f5; padding: 1px 4px; border-radius: 4px; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-.rp-md [data-streamdown="code-block"] { margin: 0 0 8px; border: 1px solid var(--line); border-radius: 8px; background: #f7f8fa; overflow: hidden; }
-.rp-md [data-streamdown="code-block-header"] { padding: 4px 10px 0; font-size: 11px; color: var(--ink-3); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: lowercase; }
-.rp-md [data-streamdown="code-block-body"] { overflow: auto; }
-.rp-md [data-streamdown="code-block"] pre { margin: 0; border: 0; background: none !important; }
-.rp-md [data-streamdown="table-wrapper"] { margin: 0 0 8px; overflow-x: auto; }
-.rp-md pre { margin: 0 0 8px; padding: 10px 12px; background: #f7f8fa; border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; font-size: 12px; line-height: 1.55; }
+.rp-md [data-streamdown="code-block"] { display: block; padding: 0; gap: 0; border: 1px solid var(--line); border-radius: 8px; background: #f7f8fa; overflow: hidden; }
+.rp-md [data-streamdown="code-block-header"] { display: block; height: auto; padding: 6px 10px 0; font-size: 11px; line-height: 14px; color: var(--ink-3); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: lowercase; }
+.rp-md [data-streamdown="code-block-body"] { padding: 0; margin: 0; border: 0; overflow: auto; }
+.rp-md pre { margin: 0; padding: 6px 10px 8px; background: none !important; font-size: 12px; line-height: 1.5; white-space: pre; }
 .rp-md pre code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: none; padding: 0; }
-.rp-md table { border-collapse: collapse; width: 100%; font-size: 12px; margin: 0 0 8px; }
-.rp-md th, .rp-md td { border: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; }
+.rp-md [data-streamdown="table-wrapper"] { display: block; padding: 0; gap: 0; overflow-x: auto; }
+.rp-md [data-streamdown="table-wrapper"] > div { max-height: none !important; border: 0; border-radius: 0; }
+.rp-md [data-streamdown="table-wrapper"] { border: 0; }
+.rp-md table { border-collapse: collapse; width: 100%; font-size: 12px; }
+.rp-md th, .rp-md td { border: 1px solid var(--line); padding: 3px 8px !important; text-align: left; vertical-align: top; white-space: normal !important; }
 .rp-md th { background: #f7f8fa; font-weight: 600; }
 .rp-thinking { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-3); font-size: 12.5px; }
 .rp-thinking i { width: 4px; height: 4px; border-radius: 999px; background: var(--accent); opacity: .3; animation: rp-dot 1.2s ease-in-out infinite; }
